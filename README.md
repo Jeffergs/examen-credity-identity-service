@@ -524,3 +524,107 @@ DTO: `PageResponse<UserResponse>`
 Os padrões de paginação, ordenação e filtros estão definidos em **12-convencoes-do-projeto.md**.
 
 ⬆️ [Voltar ao índice](#indice)
+
+
+
+
+
+
+## 5.2.3 Buscar Usuário por ID
+
+### Objetivo
+
+Retornar os dados de um usuário a partir do seu identificador.
+
+---
+
+### Endpoint
+
+```http
+GET /api/v1/users/{id}
+```
+
+---
+
+### Autenticação
+
+Obrigatória (`Bearer Token`).
+
+---
+
+### Permissão
+
+`USER_READ`
+
+---
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Authorization | Sim | `Bearer <access_token>` |
+
+---
+
+### Parâmetros de Caminho
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|:-----------:|-----------|
+| `id` | UUID | Sim | Identificador único do usuário. |
+
+Exemplo:
+
+```http
+GET /api/v1/users/efbdf77f-24dd-45b3-a130-3e60ef7b1f6a
+Authorization: Bearer <access_token>
+```
+
+---
+
+### Resposta de Sucesso
+
+DTO: `UserResponse`
+
+```json
+{
+  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
+  "name": "João Silva",
+  "email": "joao.silva@email.com",
+  "roles": [
+    {
+      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
+      "name": "ADMIN"
+    }
+  ],
+  "active": true,
+  "createdAt": "2026-08-15T14:30:00Z",
+  "updatedAt": "2026-08-15T14:30:00Z"
+}
+```
+
+---
+
+### Regras de Negócio
+
+- Apenas usuários autenticados com a permissão `USER_READ` podem consultar usuários.
+- O identificador informado deve corresponder a um usuário existente.
+
+---
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Usuário encontrado com sucesso. |
+| `401 Unauthorized` | Usuário não autenticado. |
+| `403 Forbidden` | Usuário sem permissão para consultar usuários. |
+| `404 Not Found` | Usuário não encontrado. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+### Observação
+
+O identificador do usuário é um UUID gerado automaticamente pela plataforma e não pode ser alterado.
+
+⬆️ [Voltar ao índice](#indice)
