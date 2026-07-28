@@ -343,8 +343,6 @@ Authorization: Bearer <access_token>
 
 Esta seção descreve os modelos de requisição e resposta utilizados pelos endpoints da API.
 
----
-
 ## 📤 Modelos de requisição (Request DTOs)
 
 <a id="create-user-request"></a>
@@ -623,8 +621,6 @@ Representa uma resposta simples contendo apenas uma mensagem descritiva da opera
 
 Esta seção documenta os endpoints responsáveis pela autenticação dos usuários, emissão de tokens, renovação de sessão e encerramento da autenticação.
 
----
-
 <a id="login"></a>
 ## 🔑 Login
 
@@ -692,9 +688,9 @@ Exemplo:
 | `401 Unauthorized` | Credenciais inválidas. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="refresh-token-endpoint"></a>
 ## ♻️ Refresh token
@@ -763,9 +759,9 @@ Exemplo:
 | `401 Unauthorized` | Refresh Token inválido, expirado ou revogado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="logout"></a>
 ## 🚪 Logout
@@ -831,9 +827,9 @@ Exemplo:
 | `401 Unauthorized` | Access Token inválido ou expirado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="fluxo-de-autenticacao"></a>
 ## 🔄 Fluxo de autenticação
@@ -870,17 +866,15 @@ Exemplo:
     Token     Novo Access Token
               Novo Refresh Token
 
-
 ```
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="usuarios"></a>
 # 👥 Usuários
 
 Esta seção documenta os endpoints responsáveis pelo gerenciamento dos usuários da plataforma, incluindo criação, consulta, atualização e alteração de status.
-
----
 
 <a id="criar-usuario"></a>
 ## ➕ Criar usuário
@@ -961,9 +955,9 @@ Exemplo:
 | `409 Conflict` | E-mail já cadastrado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="listar-usuarios"></a>
 ## 📋 Listar usuários
@@ -1041,9 +1035,9 @@ Exemplo:
 | `403 Forbidden` | Usuário sem permissão. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="buscar-usuario"></a>
 ## 🔍 Buscar usuário
@@ -1110,9 +1104,9 @@ Exemplo:
 | `404 Not Found` | Usuário não encontrado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="atualizar-usuario"></a>
 ## ✏️ Atualizar usuário
@@ -1198,9 +1192,9 @@ Exemplo:
 | `409 Conflict` | E-mail já utilizado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="alterar-status-do-usuario"></a>
 ## 🔄 Alterar status do usuário
@@ -1285,6 +1279,5 @@ Exemplo:
 | `404 Not Found` | Usuário não encontrado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
 
 ⬆️ [Voltar ao índice](#indice)
