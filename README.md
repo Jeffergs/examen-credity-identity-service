@@ -7,60 +7,55 @@
 1. [📝 Visão Geral](#visao-geral)
    - 1.1 [🎯 Objetivo](#objetivo)
    - 1.2 [📌 Responsabilidades](#responsabilidades)
-   - 1.3 [🚫 Fora do Escopo](#fora-do-escopo)
-2. [🗄️ Modelo de Dados](#modelo-de-dados)
-   - 2.1 [📖 Visão Geral](#modelo-visao-geral)
-   - 2.2 [📊 Modelo Conceitual](#modelo-conceitual)
+   - 1.3 [🚫 Fora do escopo](#fora-do-escopo)
+2. [🗄️ Modelo de dados](#modelo-de-dados)
+   - 2.1 [📖 Visão geral](#modelo-visao-geral)
+   - 2.2 [📊 Modelo conceitual](#modelo-conceitual)
    - 2.3 [🏛️ Entidades](#entidades)
       - 2.3.1 [👤 User](#user)
       - 2.3.2 [🛡️ Role](#role)
-      - 2.3.3 [refresh-token](#refresh-token)
+      - 2.3.3 [🔄 Refresh token](#refresh-token)
    - 2.4 [🔗 Relacionamentos](#relacionamentos)
-   - 2.5[📐 Regras de Modelagem](#regras-de-modelagem)
+   - 2.5[📐 Regras de modelagem](#regras-de-modelagem)
 3. [🛡️ Papéis (Roles)](#papeis)
-   - 3.1 [📖 Tipos de Papéis](#tipos-de-papeis)
-   - 3.2 [📐 Regras de Negócio](#regras-de-papeis)
+   - 3.1 [📖 Tipos de papéis](#tipos-de-papeis)
+   - 3.2 [📐 Regras de negócio](#regras-de-papeis)
 4. [🎫 JWT (JSON Web Token)](#jwt)
-   - 4.1 [🧩 Estrutura do Token](#estrutura-do-token)
-   - 4.2 [📄 Cabeçalho (Header)](#cabecalho-header)
-   - 4.3 [📦 Payload](#payload)
-   - 4.4 [✍️ Assinatura](#assinatura)
-   - 4.5 [📐 Regras de Negócio](#regras-jwt)
-   - 4.6 [🚀 Utilização](#utilizacao)
-5. [📦 Modelos de Requisição e Resposta (DTOs)](#dtos)
-   - 5.1 [📤 Modelos de Requisição](#request-dtos)
+   - 4.1 [📦 Claims](#clains)
+   - 4.2 [📐 Regras de negócio](#regras-jwt)
+   - 4.3 [🚀 Utilização](#utilizacao)
+6. [📦 Modelos de requisição e resposta (DTOs)](#dtos)
+   - 5.1 [📤 Modelos de requisição](#request-dtos)
       - 5.1.1 [CreateUserRequest](#create-user-request)
       - 5.1.2 [UpdateUserRequest](#update-user-request)
       - 5.1.3 [UpdateUserStatusRequest](#update-user-status-request)
       - 5.1.4 [LoginRequest](#login-request)
       - 5.1.5 [RefreshTokenRequest](#refresh-token-request)
-   - 5.2 [📥 Modelos de Resposta](#response-dtos)
+   - 5.2 [📥 Modelos de resposta](#response-dtos)
       - 5.2.1 [LoginResponse](#login-response)
       - 5.2.2 [RefreshTokenResponse](#refresh-token-response)
       - 5.2.3 [UserResponse](#user-response)
       - 5.2.4 [Page<UserResponse>](#page-user-response)
       - 5.2.5 [MessageResponse](#message-response)
-6. [🔐 Autenticação](#autenticacao)
+7. [🔐 Autenticação](#autenticacao)
    - 6.1 [🔑 Login](#login)
-   - 6.2 [♻️ Refresh Token](#refresh-token-endpoint)
+   - 6.2 [♻️ Refresh token](#refresh-token-endpoint)
    - 6.3 [🚪 Logout](#logout)
-7. [🔄 Fluxo de Autenticação](#fluxo-de-autenticacao)
-8. [👥 Usuários](#usuarios)
-   - 8.1 [➕ Criar Usuário](#criar-usuario)
-   - 8.2 [📋 Listar Usuários](#listar-usuarios)
-   - 8.3 [🔍 Buscar Usuário](#buscar-usuario)
-   - 8.4 [✏️ Atualizar Usuário](#atualizar-usuario)
-   - 8.5 [🔄 Alterar Status do Usuário](#alterar-status-do-usuario)
+8. [🔄 Fluxo de autenticação](#fluxo-de-autenticacao)
+9. [👥 Usuários](#usuarios)
+   - 8.1 [➕ Criar usuário](#criar-usuario)
+   - 8.2 [📋 Listar usuários](#listar-usuarios)
+   - 8.3 [🔍 Buscar usuário](#buscar-usuario)
+   - 8.4 [✏️ Atualizar usuário](#atualizar-usuario)
+   - 8.5 [🔄 Alterar status do usuário](#alterar-status-do-usuario)
 
 
 ---
 
 <a id="visao-geral"></a>
-
-# 📝 Visão Geral
+# 📝 Visão geral
 
 <a id="objetivo"></a>
-
 ## 🎯 Objetivo
 
 A Identity Service é o microsserviço responsável pelo gerenciamento da identidade dos usuários da plataforma.
@@ -72,7 +67,6 @@ Suas principais responsabilidades incluem autenticação, emissão e renovação
 ---
 
 <a id="responsabilidades"></a>
-
 ## 📌 Responsabilidades
 
 A Identity Service é responsável por:
@@ -90,8 +84,7 @@ A Identity Service é responsável por:
 ---
 
 <a id="fora-do-escopo"></a>
-
-## 🚫 Fora do Escopo
+## 🚫 Fora do escopo
 
 A Identity Service não implementa regras de negócio dos demais microsserviços, incluindo:
 
@@ -106,12 +99,10 @@ A Identity Service não implementa regras de negócio dos demais microsserviços
 
 
 <a id="modelo-de-dados"></a>
-
-# 🗄️ Modelo de Dados
+# 🗄️ Modelo de dados
 
 <a id="modelo-visao-geral"></a>
-
-## 📖 Visão Geral
+## 📖 Visão geral
 
 O modelo de dados da Identity Service foi projetado para atender exclusivamente às necessidades de autenticação, autorização e gerenciamento de usuários da plataforma.
 
@@ -126,8 +117,7 @@ O modelo de dados é composto por três entidades:
 ---
 
 <a id="modelo-conceitual"></a>
-
-## 📊 Modelo Conceitual
+## 📊 Modelo conceitual
 
 O diagrama abaixo representa as entidades da Identity Service e seus relacionamentos.
 
@@ -194,7 +184,7 @@ Representa os papéis utilizados para autorização na plataforma.
 
 Os papéis são fixos e cadastrados automaticamente durante a inicialização da aplicação.
 
-#### Papéis Disponíveis
+#### Papéis disponíveis
 
 | Papel | Descrição |
 |--------|-----------|
@@ -207,7 +197,7 @@ Os papéis são fixos e cadastrados automaticamente durante a inicialização da
 ---
 
 <a id="refresh-token"></a>
-### 🔄 Refresh Token
+### 🔄 Refresh token
 
 Representa um token persistido utilizado para permitir a emissão de novos Access Tokens sem que o usuário precise realizar uma nova autenticação.
 
@@ -235,7 +225,7 @@ Representa um token persistido utilizado para permitir a emissão de novos Acces
 ---
 
 <a id="regras-de-modelagem"></a>
-## 📐 Regras de Modelagem
+## 📐 Regras de modelagem
 
 - Cada usuário possui exatamente um papel.
 - Um usuário pode possuir múltiplos Refresh Tokens.
@@ -259,7 +249,7 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 ---
 
 <a id="tipos-de-papeis"></a>
-## 📖 Tipos de Papéis
+## 📖 Tipos de papéis
 
 | Papel | Descrição |
 |--------|-----------|
@@ -271,7 +261,7 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 
 
 <a id="regras-de-papeis"></a>
-## 📐 Regras de Negócio
+## 📐 Regras de negócio
 
 - Os papéis são cadastrados automaticamente pelo Flyway.
 - Não existe endpoint para gerenciamento de papéis.
@@ -323,7 +313,7 @@ Exemplo:
 ---
 
 <a id="regras-jwt"></a>
-## 📐 Regras de Negócio
+## 📐 Regras de negócio
 
 - O JWT é emitido apenas após uma autenticação bem-sucedida.
 - O Access Token possui tempo de expiração limitado.
@@ -349,7 +339,7 @@ Authorization: Bearer <access_token>
 
 
 <a id="dtos"></a>
-# 📦 Modelos de Requisição e Resposta (DTOs)
+# 📦 Modelos de requisição e resposta (DTOs)
 
 Esta seção descreve os modelos de requisição e resposta utilizados pelos endpoints da API.
 
@@ -357,7 +347,7 @@ Esta seção descreve os modelos de requisição e resposta utilizados pelos end
 
 ---
 
-## 📤 Modelos de Requisição (Request DTOs)
+## 📤 Modelos de requisição (Request DTOs)
 
 <a id="create-user-request"></a>
 ### CreateUserRequest
@@ -480,7 +470,7 @@ Utilizado pelos endpoints de renovação de token e logout.
 ⬆️ [Voltar ao índice](#indice)
 
 <a id=""></a>
-## 📥 Modelos de Resposta (Response DTOs)
+## 📥 Modelos de resposta (Response DTOs)
 
 <a id="login-response"></a>
 ### LoginResponse
@@ -658,7 +648,7 @@ Não requerida.
 |------|:-----------:|-------|
 | `Content-Type` | Sim | `application/json` |
 
-### Corpo da Requisição
+### Corpo da requisição
 
 DTO: `LoginRequest`
 
@@ -671,7 +661,7 @@ Exemplo:
 }
 ```
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `LoginResponse`
 
@@ -686,7 +676,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - O usuário deve estar cadastrado.
 - O usuário deve possuir status `ACTIVE`.
@@ -707,7 +697,7 @@ Exemplo:
 ⬆️ [Voltar ao índice](#indice)
 
 <a id="refresh-token-endpoint"></a>
-## ♻️ Refresh Token
+## ♻️ Refresh token
 
 ### Objetivo
 
@@ -729,7 +719,7 @@ Não requerida.
 |------|:-----------:|-------|
 | `Content-Type` | Sim | `application/json` |
 
-### Corpo da Requisição
+### Corpo da requisição
 
 DTO: `RefreshTokenRequest`
 
@@ -741,7 +731,7 @@ Exemplo:
 }
 ```
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `RefreshTokenResponse`
 
@@ -756,7 +746,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - O Refresh Token deve ser válido.
 - O Refresh Token não pode estar expirado.
@@ -801,7 +791,7 @@ Obrigatória (`Bearer Token`).
 | `Authorization` | Sim | `Bearer <access_token>` |
 | `Content-Type` | Sim | `application/json` |
 
-### Corpo da Requisição
+### Corpo da requisição
 
 DTO: `RefreshTokenRequest`
 
@@ -813,7 +803,7 @@ Exemplo:
 }
 ```
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `MessageResponse`
 
@@ -825,7 +815,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - O Access Token deve ser válido.
 - O Refresh Token deve pertencer ao usuário autenticado.
@@ -846,7 +836,7 @@ Exemplo:
 ⬆️ [Voltar ao índice](#indice)
 
 <a id="fluxo-de-autenticacao"></a>
-## 🔄 Fluxo de Autenticação
+## 🔄 Fluxo de autenticação
 
 ```text
 
@@ -893,7 +883,7 @@ Esta seção documenta os endpoints responsáveis pelo gerenciamento dos usuári
 ---
 
 <a id="criar-usuario"></a>
-## ➕ Criar Usuário
+## ➕ Criar usuário
 
 ### Objetivo
 
@@ -920,7 +910,7 @@ Obrigatória (`Bearer Token`).
 | `Authorization` | Sim | `Bearer <access_token>` |
 | `Content-Type` | Sim | `application/json` |
 
-### Corpo da Requisição
+### Corpo da requisição
 
 DTO: `CreateUserRequest`
 
@@ -935,7 +925,7 @@ Exemplo:
 }
 ```
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `UserResponse`
 
@@ -953,7 +943,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - Apenas usuários com papel `ADMIN` podem criar usuários.
 - O e-mail deve ser único.
@@ -976,7 +966,7 @@ Exemplo:
 ⬆️ [Voltar ao índice](#indice)
 
 <a id="listar-usuarios"></a>
-## 📋 Listar Usuários
+## 📋 Listar usuários
 
 ### Objetivo
 
@@ -1002,7 +992,7 @@ Obrigatória (`Bearer Token`).
 |------|:-----------:|-------|
 | `Authorization` | Sim | `Bearer <access_token>` |
 
-### Parâmetros de Consulta
+### Parâmetros de consulta
 
 | Nome | Tipo | Obrigatório | Padrão | Descrição |
 |------|------|:-----------:|--------|-----------|
@@ -1010,7 +1000,7 @@ Obrigatória (`Bearer Token`).
 | `size` | Integer | Não | `10` | Quantidade de registros por página. |
 | `sort` | String | Não | `name,asc` | Campo e direção da ordenação. |
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `Page<UserResponse>`
 
@@ -1038,7 +1028,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - Apenas usuários com papel `ADMIN` podem listar usuários.
 - A listagem é paginada utilizando Spring Data.
@@ -1056,7 +1046,7 @@ Exemplo:
 ⬆️ [Voltar ao índice](#indice)
 
 <a id="buscar-usuario"></a>
-## 🔍 Buscar Usuário
+## 🔍 Buscar usuário
 
 ### Objetivo
 
@@ -1088,7 +1078,7 @@ Obrigatória (`Bearer Token`).
 |------|------|:-----------:|-----------|
 | `id` | UUID | Sim | Identificador do usuário. |
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `UserResponse`
 
@@ -1106,7 +1096,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - Apenas usuários com papel `ADMIN` podem consultar usuários.
 - O usuário deve existir.
@@ -1125,7 +1115,7 @@ Exemplo:
 ⬆️ [Voltar ao índice](#indice)
 
 <a id="atualizar-usuario"></a>
-## ✏️ Atualizar Usuário
+## ✏️ Atualizar usuário
 
 ### Objetivo
 
@@ -1152,13 +1142,13 @@ Obrigatória (`Bearer Token`).
 | `Authorization` | Sim | `Bearer <access_token>` |
 | `Content-Type` | Sim | `application/json` |
 
-### Parâmetros de Caminho
+### Parâmetros de caminho
 
 | Nome | Tipo | Obrigatório | Descrição |
 |------|------|:-----------:|-----------|
 | `id` | UUID | Sim | Identificador do usuário. |
 
-### Corpo da Requisição
+### Corpo da requisição
 
 DTO: `UpdateUserRequest`
 
@@ -1172,7 +1162,7 @@ Exemplo:
 }
 ```
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `UserResponse`
 
@@ -1190,7 +1180,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - Apenas usuários com papel `ADMIN` podem atualizar usuários.
 - Apenas `name`, `email` e `role` podem ser alterados.
@@ -1213,7 +1203,7 @@ Exemplo:
 ⬆️ [Voltar ao índice](#indice)
 
 <a id="alterar-status-do-usuario"></a>
-## 🔄 Alterar Status do Usuário
+## 🔄 Alterar status do usuário
 
 ### Objetivo
 
@@ -1240,13 +1230,13 @@ Obrigatória (`Bearer Token`).
 | `Authorization` | Sim | `Bearer <access_token>` |
 | `Content-Type` | Sim | `application/json` |
 
-### Parâmetros de Caminho
+### Parâmetros de caminho
 
 | Nome | Tipo | Obrigatório | Descrição |
 |------|------|:-----------:|-----------|
 | `id` | UUID | Sim | Identificador do usuário. |
 
-### Corpo da Requisição
+### Corpo da requisição
 
 DTO: `UpdateUserStatusRequest`
 
@@ -1258,7 +1248,7 @@ Exemplo:
 }
 ```
 
-### Resposta de Sucesso
+### Resposta de sucesso
 
 DTO: `UserResponse`
 
@@ -1276,7 +1266,7 @@ Exemplo:
 }
 ```
 
-### Regras de Negócio
+### Regras de negócio
 
 - Apenas usuários com papel `ADMIN` podem alterar o status de usuários.
 - Os status permitidos são:
