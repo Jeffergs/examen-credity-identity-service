@@ -691,15 +691,11 @@ Não requerida.
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Content-Type | Sim | `application/json` |
+| `Content-Type` | Sim | `application/json` |
 
 ### Corpo da Requisição
 
 DTO: `RefreshTokenRequest`
-
-| Campo | Tipo | Obrigatório | Descrição |
-|--------|------|:-----------:|-----------|
-| `refreshToken` | String | Sim | Refresh Token válido. |
 
 Exemplo:
 
@@ -713,12 +709,14 @@ Exemplo:
 
 DTO: `RefreshTokenResponse`
 
+Exemplo:
+
 ```json
 {
-  "accessToken": "<novo_access_token>",
-  "refreshToken": "<novo_refresh_token>",
+  "accessToken": "<access_token>",
+  "refreshToken": "<refresh_token>",
   "tokenType": "Bearer",
-  "expiresIn": 900
+  "expiresIn": "<expires_in>"
 }
 ```
 
@@ -727,7 +725,8 @@ DTO: `RefreshTokenResponse`
 - O Refresh Token deve ser válido.
 - O Refresh Token não pode estar expirado.
 - O Refresh Token não pode estar revogado.
-- Um novo Refresh Token é emitido, invalidando imediatamente o anterior (Refresh Token Rotation).
+- Após a renovação, um novo Access Token e um novo Refresh Token são emitidos.
+- O Refresh Token utilizado é imediatamente revogado (Refresh Token Rotation).
 
 ### Códigos HTTP
 
@@ -737,10 +736,6 @@ DTO: `RefreshTokenResponse`
 | `400 Bad Request` | Requisição inválida. |
 | `401 Unauthorized` | Refresh Token inválido, expirado ou revogado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
-
-### Observação
-
-A Identity Service utiliza a estratégia de **Refresh Token Rotation**, garantindo que cada Refresh Token seja utilizado apenas uma vez.
 
 ---
 
@@ -766,16 +761,12 @@ Obrigatória (`Bearer Token`).
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Authorization | Sim | `Bearer <access_token>` |
-| Content-Type | Sim | `application/json` |
+| `Authorization` | Sim | `Bearer <access_token>` |
+| `Content-Type` | Sim | `application/json` |
 
 ### Corpo da Requisição
 
 DTO: `RefreshTokenRequest`
-
-| Campo | Tipo | Obrigatório | Descrição |
-|--------|------|:-----------:|-----------|
-| `refreshToken` | String | Sim | Refresh Token que será revogado. |
 
 Exemplo:
 
@@ -788,6 +779,8 @@ Exemplo:
 ### Resposta de Sucesso
 
 DTO: `MessageResponse`
+
+Exemplo:
 
 ```json
 {
@@ -810,6 +803,8 @@ DTO: `MessageResponse`
 | `400 Bad Request` | Requisição inválida. |
 | `401 Unauthorized` | Access Token inválido ou expirado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
+
+---
 
 
 
