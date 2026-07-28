@@ -410,3 +410,117 @@ DTO: `UserResponse`
 As políticas de senha, criptografia, autenticação e controle de acesso estão descritas em **09-arquitetura-de-seguranca.md**.
 
 ⬆️ [Voltar ao índice](#indice)
+
+
+
+
+
+
+## 5.2.2 Listar Usuários
+
+### Objetivo
+
+Retornar uma lista paginada de usuários cadastrados na plataforma.
+
+---
+
+### Endpoint
+
+```http
+GET /api/v1/users
+```
+
+---
+
+### Autenticação
+
+Obrigatória (`Bearer Token`).
+
+---
+
+### Permissão
+
+`USER_READ`
+
+---
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Authorization | Sim | `Bearer <access_token>` |
+
+---
+
+### Parâmetros de Consulta
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|:-----------:|-----------|
+| `page` | Integer | Não | Número da página. Padrão: `0`. |
+| `size` | Integer | Não | Quantidade de registros por página. Padrão: `20`. |
+| `sort` | String | Não | Campo e direção da ordenação (`campo,asc` ou `campo,desc`). |
+
+> Os campos permitidos para ordenação são: `name`, `email`, `active`, `createdAt` e `updatedAt`.
+
+Exemplo:
+
+```http
+GET /api/v1/users?page=0&size=20&sort=name,asc
+Authorization: Bearer <access_token>
+```
+
+---
+
+### Resposta de Sucesso
+
+DTO: `PageResponse<UserResponse>`
+
+```json
+{
+  "content": [
+    {
+      "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
+      "name": "João Silva",
+      "email": "joao.silva@email.com",
+      "active": true
+    },
+    {
+      "id": "0fd9ddc5-12f0-42cb-bfc7-3dc6dbf2c26f",
+      "name": "Maria Oliveira",
+      "email": "maria.oliveira@email.com",
+      "active": true
+    }
+  ],
+  "page": 0,
+  "size": 20,
+  "totalElements": 2,
+  "totalPages": 1
+}
+```
+
+---
+
+### Regras de Negócio
+
+- Apenas usuários autenticados com a permissão `USER_READ` podem consultar usuários.
+- O resultado é retornado de forma paginada.
+- A ordenação deve utilizar apenas os campos permitidos pela API.
+
+---
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Lista de usuários retornada com sucesso. |
+| `401 Unauthorized` | Usuário não autenticado. |
+| `403 Forbidden` | Usuário sem permissão para consultar usuários. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+### Observação
+
+Os padrões de paginação, ordenação e filtros estão definidos em **12-convencoes-do-projeto.md**.
+
+⬆️ [Voltar ao índice](#indice)
