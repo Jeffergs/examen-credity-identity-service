@@ -288,3 +288,125 @@ DTO: `MessageResponse`
 O logout revoga apenas o Refresh Token. O Access Token permanece válido até sua expiração natural.
 
 As políticas de expiração, revogação e gerenciamento de tokens são descritas em **09-arquitetura-de-seguranca.md**.
+
+
+
+
+
+
+
+## 5.2.1 Criar Usuário
+
+### Objetivo
+
+Cadastrar um novo usuário na plataforma.
+
+---
+
+### Endpoint
+
+```http
+POST /api/v1/users
+```
+
+---
+
+### Autenticação
+
+Obrigatória (`Bearer Token`).
+
+---
+
+### Permissão
+
+`USER_CREATE`
+
+---
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Authorization | Sim | `Bearer <access_token>` |
+| Content-Type | Sim | `application/json` |
+
+---
+
+### Corpo da Requisição
+
+DTO: `CreateUserRequest`
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `name` | String | Sim | Nome completo do usuário. |
+| `email` | String | Sim | Endereço de e-mail. |
+| `password` | String | Sim | Senha de acesso. |
+| `roleIds` | List<UUID> | Sim | Identificadores dos papéis atribuídos ao usuário. |
+
+Exemplo:
+
+```json
+{
+  "name": "João Silva",
+  "email": "joao.silva@email.com",
+  "password": "Senha@123",
+  "roleIds": [
+    "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11"
+  ]
+}
+```
+
+---
+
+### Resposta de Sucesso
+
+DTO: `UserResponse`
+
+```json
+{
+  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
+  "name": "João Silva",
+  "email": "joao.silva@email.com",
+  "roles": [
+    {
+      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
+      "name": "ADMIN"
+    }
+  ],
+  "active": true,
+  "createdAt": "2026-08-15T14:30:00Z",
+  "updatedAt": "2026-08-15T14:30:00Z"
+}
+```
+
+---
+
+### Regras de Negócio
+
+- O e-mail deve ser único na plataforma.
+- A senha deve atender à política de segurança da aplicação.
+- Todos os papéis informados devem existir.
+- O usuário será associado aos papéis informados.
+- Todo usuário é criado com status **ativo**.
+- A senha é armazenada apenas em formato criptografado.
+
+---
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `201 Created` | Usuário criado com sucesso. |
+| `400 Bad Request` | Requisição inválida. |
+| `401 Unauthorized` | Usuário não autenticado. |
+| `403 Forbidden` | Usuário sem permissão para criar usuários. |
+| `409 Conflict` | Já existe um usuário com o e-mail informado. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+### Observação
+
+As políticas de senha, criptografia, autenticação e controle de acesso estão descritas em **09-arquitetura-de-seguranca.md**.
+
+⬆️ [Voltar ao índice](#indice)
