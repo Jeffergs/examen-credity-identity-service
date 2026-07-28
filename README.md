@@ -325,7 +325,7 @@ Exemplo:
 
 ---
 
-<a id="utilizacao-jwt"></a>
+<a id="utilizacao"></a>
 ## 🚀 Utilização
 
 Os endpoints protegidos devem receber o Access Token no cabeçalho HTTP:
