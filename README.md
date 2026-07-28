@@ -1,22 +1,35 @@
 # 📑 Índice
 
 1. [📝 Visão Geral](#visao-geral)
+   - [🎯 Objetivo](#objetivo)
+   - [📌 Responsabilidades](#responsabilidades)
+   - [🚫 Fora do Escopo](#fora-do-escopo)
+
 2. [🗄️ Modelo de Dados](#modelo-de-dados)
-   - [👤 User](#user)
-   - [🛡️ Role](#role)
-   - [🔄 Refresh Token](#refresh-token)
+   - [📖 Visão Geral](#modelo-visao-geral)
+   - [📊 Modelo Conceitual](#modelo-conceitual)
+   - [🏛️ Entidades](#entidades)
+     - [👤 User](#user)
+     - [🛡️ Role](#role)
+     - [🔄 Refresh Token](#refresh-token)
+   - [🔗 Relacionamentos](#relacionamentos)
+   - [📐 Regras de Modelagem](#regras-de-modelagem)
+
 3. [🔐 Autenticação](#autenticacao)
    - [🔑 Login](#login)
    - [♻️ Refresh Token](#refresh-token-endpoint)
    - [🚪 Logout](#logout)
+
 4. [👥 Usuários](#usuarios)
    - [➕ Criar Usuário](#criar-usuario)
    - [📋 Listar Usuários](#listar-usuarios)
    - [🔍 Buscar Usuário](#buscar-usuario)
    - [✏️ Atualizar Usuário](#atualizar-usuario)
    - [🔄 Alterar Status do Usuário](#alterar-status-do-usuario)
+
 5. [🛡️ Papéis (Roles)](#papeis)
    - [📖 Tipos de Papéis](#tipos-de-papeis)
+
 6. [🎫 JWT (JSON Web Token)](#jwt)
 
 ---
@@ -25,47 +38,111 @@
 
 # 📝 Visão Geral
 
+<a id="objetivo"></a>
+
+## 🎯 Objetivo
+
+A Identity Service é responsável pelo gerenciamento da identidade dos usuários da plataforma.
+
+Suas principais responsabilidades incluem autenticação, emissão e renovação de tokens JWT, gerenciamento de usuários e controle de acesso baseado em papéis (RBAC), fornecendo os mecanismos de segurança utilizados pelos demais microsserviços.
+
 ---
+
+<a id="responsabilidades"></a>
+
+## 📌 Responsabilidades
+
+A Identity Service é responsável por:
+
+- Autenticar usuários.
+- Emitir Access Tokens (JWT).
+- Emitir e renovar Refresh Tokens.
+- Revogar Refresh Tokens durante o logout.
+- Gerenciar usuários da plataforma.
+- Gerenciar os papéis atribuídos aos usuários.
+- Fornecer informações de identidade para os demais microsserviços.
+
+---
+
+<a id="fora-do-escopo"></a>
+
+## 🚫 Fora do Escopo
+
+A Identity Service não é responsável por regras de negócio dos demais microsserviços, incluindo:
+
+- Cadastro de clientes.
+- Análise de crédito.
+- Auditoria.
+- Notificações.
+- Gerenciamento de dados financeiros.
+- Processamento de solicitações de crédito.
+
+
+
+
+
+
 
 <a id="modelo-de-dados"></a>
 
 # 🗄️ Modelo de Dados
 
-## Visão Geral
+<a id="modelo-visao-geral"></a>
 
-A Identity Service é responsável pelo gerenciamento da identidade dos usuários da plataforma.
+## 📖 Visão Geral
 
-Seu modelo de dados é enxuto e composto por apenas três entidades:
+O modelo de dados da Identity Service foi projetado para atender exclusivamente às necessidades de autenticação, autorização e gerenciamento de usuários da plataforma.
 
-- **User**: representa os usuários autenticáveis da plataforma.
-- **Role**: representa os papéis disponíveis para autorização.
+O microsserviço é composto por apenas três entidades:
+
+- **User**: representa um usuário autenticável.
+- **Role**: representa o papel atribuído ao usuário.
 - **RefreshToken**: controla a renovação segura dos Access Tokens.
 
-O relacionamento entre as entidades foi projetado para manter a separação entre autenticação e regras de negócio. Informações específicas dos demais microsserviços não são armazenadas na Identity Service.
+Informações de negócio pertencentes aos demais microsserviços não são armazenadas na Identity Service.
 
 ---
 
-## Modelo Conceitual
+<a id="modelo-conceitual"></a>
 
-```text
-Role (1)
-   │
-   │
-   └───────────────┐
-                   │
-                (*)
-               User (1)
-                   │
-                   │
-                   └───────────────┐
-                                   │
-                                (*)
-                          RefreshToken
+## 📊 Modelo Conceitual
+
+```mermaid
+erDiagram
+
+    ROLE ||--o{ USER : "é atribuído a"
+    USER ||--o{ REFRESH_TOKEN : "possui"
+
+    ROLE {
+        UUID id PK
+        STRING name
+        STRING description
+    }
+
+    USER {
+        UUID id PK
+        STRING name
+        STRING email
+        STRING password_hash
+        ENUM status
+        UUID role_id FK
+        DATETIME created_at
+        DATETIME updated_at
+    }
+
+    REFRESH_TOKEN {
+        UUID id PK
+        STRING token
+        BOOLEAN revoked
+        DATETIME expires_at
+        DATETIME created_at
+        UUID user_id FK
+    }
 ```
 
----
+<a id="entidades"></a>
 
-## Entidades
+## 🏛️ Entidades
 
 <a id="user"></a>
 
@@ -73,27 +150,24 @@ Role (1)
 
 Representa um usuário autenticável da plataforma.
 
-Cada usuário possui exatamente um papel (Role) e pode possuir múltiplos Refresh Tokens ao longo de sua utilização do sistema.
+Cada usuário possui exatamente um papel e pode possuir múltiplos Refresh Tokens ativos ao longo do tempo.
 
-#### Responsabilidades
+**Responsabilidades**
 
-- Identificação do usuário.
-- Autenticação.
-- Associação ao papel de acesso.
-- Controle do status da conta.
+- Identificar o usuário.
+- Armazenar as credenciais de autenticação.
+- Definir o papel de acesso.
+- Controlar o status da conta.
 
 ---
-
 
 <a id="role"></a>
 
 ### 🛡️ Role
 
-Representa os papéis disponíveis para autorização.
+Representa os papéis utilizados para autorização na plataforma.
 
-Os papéis são fixos e cadastrados automaticamente durante a inicialização da aplicação por meio de migrations.
-
-Não existe funcionalidade para criação, edição ou exclusão de papéis.
+Os papéis são fixos e cadastrados automaticamente durante a inicialização da aplicação.
 
 Papéis disponíveis:
 
@@ -107,15 +181,15 @@ Papéis disponíveis:
 
 ### 🔄 Refresh Token
 
-Representa um token utilizado para renovação do Access Token.
+Representa um token utilizado para obtenção de novos Access Tokens.
 
-Cada renovação gera um novo Refresh Token, invalidando o anterior (Refresh Token Rotation).
-
-Essa estratégia reduz riscos de reutilização de tokens comprometidos.
+A Identity Service utiliza **Refresh Token Rotation**, invalidando o token anterior sempre que um novo Refresh Token é emitido.
 
 ---
 
-### Relacionamentos
+<a id="relacionamentos"></a>
+
+## 🔗 Relacionamentos
 
 | Origem | Relacionamento | Destino |
 |---------|----------------|---------|
@@ -124,24 +198,18 @@ Essa estratégia reduz riscos de reutilização de tokens comprometidos.
 
 ---
 
-### Regras de Modelagem
+<a id="regras-de-modelagem"></a>
+
+## 📐 Regras de Modelagem
 
 - Cada usuário possui exatamente um papel.
-- Um papel pode ser associado a vários usuários.
-- Um usuário pode possuir vários Refresh Tokens.
-- Um Refresh Token pertence a apenas um usuário.
-- Os papéis são imutáveis durante a execução da aplicação.
+- Um papel pode ser atribuído a vários usuários.
+- Um usuário pode possuir múltiplos Refresh Tokens.
+- Cada Refresh Token pertence a um único usuário.
+- Os papéis são fixos e não podem ser alterados pela API.
 - Não existem entidades de Permission ou RolePermission.
 - A autorização é baseada exclusivamente no papel presente no JWT.
 
----
-
-### Considerações
-
-A Identity Service armazena apenas informações relacionadas à identidade e autenticação.
-
-Não são armazenados dados de clientes, análises de crédito, notificações, auditorias ou quaisquer informações de negócio pertencentes aos demais microsserviços.
----
 
 
 
@@ -149,11 +217,12 @@ Não são armazenados dados de clientes, análises de crédito, notificações, 
 
 
 
----
 
 <a id="autenticacao"></a>
 
 # 🔐 Autenticação
+
+Os endpoints desta seção são responsáveis pela autenticação dos usuários e pelo gerenciamento do ciclo de vida dos tokens utilizados pela plataforma.
 
 ---
 
@@ -161,205 +230,19 @@ Não são armazenados dados de clientes, análises de crédito, notificações, 
 
 ## 🔑 Login
 
----
-
-<a id="refresh-token-endpoint"></a>
-
-## ♻️ Refresh Token
-
----
-
-<a id="logout"></a>
-
-## 🚪 Logout
-
----
-
-<a id="usuarios"></a>
-
-# 👥 Usuários
-
----
-
-<a id="criar-usuario"></a>
-
-## ➕ Criar Usuário
-
----
-
-<a id="listar-usuarios"></a>
-
-## 📋 Listar Usuários
-
----
-
-<a id="buscar-usuario"></a>
-
-## 🔍 Buscar Usuário
-
----
-
-<a id="atualizar-usuario"></a>
-
-## ✏️ Atualizar Usuário
-
----
-
-<a id="alterar-status-do-usuario"></a>
-
-## 🔄 Alterar Status do Usuário
-
----
-
-<a id="papeis"></a>
-
-# 🛡️ Papéis (Roles)
-
----
-
-<a id="tipos-de-papeis"></a>
-
-## 📖 Tipos de Papéis
-
----
-
-<a id="jwt"></a>
-
-# 🎫 JWT (JSON Web Token)
-
-
-# Identity Service
-
-## Objetivo
-
-O Identity Service é responsável por gerenciar a identidade dos usuários da plataforma, realizando autenticação, autorização e controle de acesso aos recursos protegidos.
-
-Além disso, é responsável pela emissão e validação de tokens JWT, administração de usuários, papéis (roles) e permissões, fornecendo os mecanismos de segurança utilizados pelos demais microsserviços.
-
----
-
-## Responsabilidades
-
-O Identity Service é responsável por:
-
-- Autenticar usuários.
-- Emitir tokens JWT.
-- Renovar tokens de acesso.
-- Invalidar tokens quando aplicável.
-- Gerenciar usuários.
-- Gerenciar papéis (roles).
-- Gerenciar permissões.
-- Fornecer informações de identidade para os demais microsserviços.
-
----
-
-## Domínios Funcionais
-
-| Domínio Funcional | Responsabilidade |
-|-------------------|------------------|
-| Autenticação | Autenticar usuários, emitir, renovar e invalidar tokens de acesso. |
-| Usuários | Gerenciar contas de usuários da plataforma. |
-| Papéis (Roles) | Gerenciar os papéis atribuídos aos usuários. |
-| Permissões | Gerenciar as permissões associadas aos papéis. |
-| Autorização | Controlar o acesso aos recursos protegidos com base nas permissões do usuário. |
-
----
-
-## Fora do Escopo
-
-O Identity Service não é responsável por:
-
-- Cadastro de clientes.
-- Cadastro de renda.
-- Análise de crédito.
-- Auditoria.
-- Notificações.
-
-## Login
-
 ### Objetivo
 
-Permitir que um usuário autenticado acesse a plataforma por meio da validação de suas credenciais, recebendo um token JWT para utilização nos recursos protegidos.
-
----
-
-### Descrição
-
-O usuário informa seu e-mail e senha.
-
-O Identity Service valida as credenciais informadas e, caso sejam válidas, autentica o usuário e retorna um token JWT contendo suas informações de identidade e autorização.
-
-Esse token deverá ser enviado nas requisições subsequentes para acesso aos endpoints protegidos da plataforma.
-
----
-
-### Entradas
-
-| Campo | Obrigatório | Descrição |
-|--------|:-----------:|-----------|
-| E-mail | Sim | Endereço de e-mail do usuário. |
-| Senha | Sim | Senha cadastrada para o usuário. |
-
----
-
-### Regras de Negócio
-
-- O e-mail deve estar cadastrado.
-- O usuário deve estar ativo.
-- A senha informada deve corresponder à senha armazenada.
-- A senha deve ser comparada utilizando seu hash armazenado.
-- Apenas usuários autenticados podem receber um token de acesso.
-
----
-
-### Fluxo
-
-1. O usuário informa e-mail e senha.
-2. O Identity Service valida os dados recebidos.
-3. O sistema localiza o usuário pelo e-mail.
-4. O sistema verifica se o usuário está ativo.
-5. O sistema valida a senha informada.
-6. O sistema gera um token JWT.
-7. O token é retornado ao cliente.
-
----
-
-### Resultado Esperado
-
-Em caso de sucesso, o usuário é autenticado e recebe um token JWT válido para acessar os recursos protegidos da plataforma.
-
----
-
-### Possíveis Erros
-
-| Situação | Resultado |
-|----------|-----------|
-| E-mail não cadastrado | Autenticação negada. |
-| Senha inválida | Autenticação negada. |
-| Usuário inativo | Autenticação negada. |
-| Credenciais inválidas | Autenticação negada. |
-
-## Renovar Access Token
-
-### Objetivo
-
-Emitir um novo Access Token a partir de um Refresh Token válido, sem exigir uma nova autenticação.
-
----
+Autenticar um usuário e emitir um Access Token (JWT) e um Refresh Token.
 
 ### Endpoint
 
 ```http
-POST /api/v1/auth/refresh
+POST /api/v1/auth/login
 ```
-
----
 
 ### Autenticação
 
 Não requerida.
-
----
 
 ### Cabeçalhos
 
@@ -367,7 +250,78 @@ Não requerida.
 |------|:-----------:|-------|
 | Content-Type | Sim | `application/json` |
 
+### Corpo da Requisição
+
+DTO: `LoginRequest`
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `email` | String | Sim | E-mail do usuário. |
+| `password` | String | Sim | Senha do usuário. |
+
+Exemplo:
+
+```json
+{
+  "email": "analyst@examencrediti.com",
+  "password": "Senha@123"
+}
+```
+
+### Resposta de Sucesso
+
+DTO: `LoginResponse`
+
+```json
+{
+  "accessToken": "<access_token>",
+  "refreshToken": "<refresh_token>",
+  "tokenType": "Bearer",
+  "expiresIn": 900
+}
+```
+
+### Regras de Negócio
+
+- O e-mail deve estar cadastrado.
+- O usuário deve possuir status `ACTIVE`.
+- A senha deve corresponder ao hash armazenado.
+- Um Access Token e um Refresh Token são emitidos após a autenticação.
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Autenticação realizada com sucesso. |
+| `400 Bad Request` | Requisição inválida. |
+| `401 Unauthorized` | Credenciais inválidas. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
 ---
+
+<a id="refresh-token-endpoint"></a>
+
+## ♻️ Refresh Token
+
+### Objetivo
+
+Emitir um novo Access Token utilizando um Refresh Token válido.
+
+### Endpoint
+
+```http
+POST /api/v1/auth/refresh
+```
+
+### Autenticação
+
+Não requerida.
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Content-Type | Sim | `application/json` |
 
 ### Corpo da Requisição
 
@@ -375,7 +329,7 @@ DTO: `RefreshTokenRequest`
 
 | Campo | Tipo | Obrigatório | Descrição |
 |--------|------|:-----------:|-----------|
-| `refreshToken` | String | Sim | Refresh Token válido emitido durante a autenticação. |
+| `refreshToken` | String | Sim | Refresh Token válido. |
 
 Exemplo:
 
@@ -384,8 +338,6 @@ Exemplo:
   "refreshToken": "<refresh_token>"
 }
 ```
-
----
 
 ### Resposta de Sucesso
 
@@ -400,17 +352,12 @@ DTO: `RefreshTokenResponse`
 }
 ```
 
----
-
 ### Regras de Negócio
 
 - O Refresh Token deve ser válido.
 - O Refresh Token não pode estar expirado.
 - O Refresh Token não pode estar revogado.
-- Um novo Access Token é emitido para o usuário autenticado.
-- Um novo Refresh Token é emitido e o token anterior é invalidado (Refresh Token Rotation).
-
----
+- Um novo Refresh Token é emitido, invalidando imediatamente o anterior (Refresh Token Rotation).
 
 ### Códigos HTTP
 
@@ -421,24 +368,19 @@ DTO: `RefreshTokenResponse`
 | `401 Unauthorized` | Refresh Token inválido, expirado ou revogado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
 ### Observação
 
-O Identity Service adota a estratégia de **Refresh Token Rotation**. A cada renovação, um novo Refresh Token é emitido e o token utilizado na requisição é invalidado imediatamente.
+A Identity Service utiliza a estratégia de **Refresh Token Rotation**, garantindo que cada Refresh Token seja utilizado apenas uma vez.
 
-Os detalhes sobre expiração, revogação, rotação e blacklist de tokens estão descritos em **09-arquitetura-de-seguranca.md**.
+---
 
+<a id="logout"></a>
 
-
-
-## Logout
+## 🚪 Logout
 
 ### Objetivo
 
-Encerrar a sessão do usuário autenticado, revogando o Refresh Token e impedindo a emissão de novos Access Tokens.
-
----
+Encerrar a sessão do usuário revogando o Refresh Token utilizado.
 
 ### Endpoint
 
@@ -446,13 +388,9 @@ Encerrar a sessão do usuário autenticado, revogando o Refresh Token e impedind
 POST /api/v1/auth/logout
 ```
 
----
-
 ### Autenticação
 
 Obrigatória (`Bearer Token`).
-
----
 
 ### Cabeçalhos
 
@@ -460,8 +398,6 @@ Obrigatória (`Bearer Token`).
 |------|:-----------:|-------|
 | Authorization | Sim | `Bearer <access_token>` |
 | Content-Type | Sim | `application/json` |
-
----
 
 ### Corpo da Requisição
 
@@ -479,8 +415,6 @@ Exemplo:
 }
 ```
 
----
-
 ### Resposta de Sucesso
 
 DTO: `MessageResponse`
@@ -491,16 +425,12 @@ DTO: `MessageResponse`
 }
 ```
 
----
-
 ### Regras de Negócio
 
 - O Access Token deve ser válido.
 - O Refresh Token deve pertencer ao usuário autenticado.
 - O Refresh Token é revogado e não pode mais ser reutilizado.
-- Após o logout, o usuário deverá realizar uma nova autenticação para obter novos tokens.
-
----
+- O Access Token permanece válido até sua expiração natural.
 
 ### Códigos HTTP
 
@@ -511,27 +441,24 @@ DTO: `MessageResponse`
 | `401 Unauthorized` | Access Token inválido ou expirado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
+
+
+
+<a id="usuarios"></a>
+
+# 👥 Usuários
+
+Os endpoints desta seção são responsáveis pelo gerenciamento dos usuários da plataforma.
+
 ---
 
-### Observação
+<a id="criar-usuario"></a>
 
-O logout revoga apenas o Refresh Token. O Access Token permanece válido até sua expiração natural.
-
-As políticas de expiração, revogação e gerenciamento de tokens são descritas em **09-arquitetura-de-seguranca.md**.
-
-
-
-
-
-
-
-## 5.2.1 Criar Usuário
+## ➕ Criar Usuário
 
 ### Objetivo
 
 Cadastrar um novo usuário na plataforma.
-
----
 
 ### Endpoint
 
@@ -539,19 +466,13 @@ Cadastrar um novo usuário na plataforma.
 POST /api/v1/users
 ```
 
----
-
 ### Autenticação
 
 Obrigatória (`Bearer Token`).
 
----
-
 ### Permissão
 
-`USER_CREATE`
-
----
+`ADMIN`
 
 ### Cabeçalhos
 
@@ -560,99 +481,41 @@ Obrigatória (`Bearer Token`).
 | Authorization | Sim | `Bearer <access_token>` |
 | Content-Type | Sim | `application/json` |
 
----
-
 ### Corpo da Requisição
 
 DTO: `CreateUserRequest`
-
-| Campo | Tipo | Obrigatório | Descrição |
-|--------|------|:-----------:|-----------|
-| `name` | String | Sim | Nome completo do usuário. |
-| `email` | String | Sim | Endereço de e-mail. |
-| `password` | String | Sim | Senha de acesso. |
-| `roleIds` | List<UUID> | Sim | Identificadores dos papéis atribuídos ao usuário. |
-
-Exemplo:
-
-```json
-{
-  "name": "João Silva",
-  "email": "joao.silva@email.com",
-  "password": "Senha@123",
-  "roleIds": [
-    "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11"
-  ]
-}
-```
-
----
 
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
 
-```json
-{
-  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
-  "name": "João Silva",
-  "email": "joao.silva@email.com",
-  "roles": [
-    {
-      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
-      "name": "ADMIN"
-    }
-  ],
-  "active": true,
-  "createdAt": "2026-08-15T14:30:00Z",
-  "updatedAt": "2026-08-15T14:30:00Z"
-}
-```
-
----
-
 ### Regras de Negócio
 
-- O e-mail deve ser único na plataforma.
-- A senha deve atender à política de segurança da aplicação.
-- Todos os papéis informados devem existir.
-- O usuário será associado aos papéis informados.
-- Todo usuário é criado com status **ativo**.
-- A senha é armazenada apenas em formato criptografado.
-
----
+- Apenas usuários com papel `ADMIN` podem criar usuários.
+- O e-mail deve ser único.
+- O papel informado deve existir.
+- Todo usuário é criado com status `ACTIVE`.
+- A senha é armazenada utilizando algoritmo de hash.
 
 ### Códigos HTTP
 
 | Código | Descrição |
 |---------|-----------|
 | `201 Created` | Usuário criado com sucesso. |
-| `400 Bad Request` | Requisição inválida. |
-| `401 Unauthorized` | Usuário não autenticado. |
-| `403 Forbidden` | Usuário sem permissão para criar usuários. |
-| `409 Conflict` | Já existe um usuário com o e-mail informado. |
+| `400 Bad Request` | Dados inválidos. |
+| `403 Forbidden` | Usuário sem permissão. |
+| `409 Conflict` | E-mail já cadastrado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
 
-### Observação
+<a id="listar-usuarios"></a>
 
-As políticas de senha, criptografia, autenticação e controle de acesso estão descritas em **09-arquitetura-de-seguranca.md**.
-
-⬆️ [Voltar ao índice](#indice)
-
-
-
-
-
-
-## 5.2.2 Listar Usuários
+## 📋 Listar Usuários
 
 ### Objetivo
 
-Retornar uma lista paginada de usuários cadastrados na plataforma.
-
----
+Listar os usuários cadastrados de forma paginada.
 
 ### Endpoint
 
@@ -660,19 +523,13 @@ Retornar uma lista paginada de usuários cadastrados na plataforma.
 GET /api/v1/users
 ```
 
----
-
 ### Autenticação
 
 Obrigatória (`Bearer Token`).
 
----
-
 ### Permissão
 
-`USER_READ`
-
----
+`ADMIN`
 
 ### Cabeçalhos
 
@@ -680,93 +537,40 @@ Obrigatória (`Bearer Token`).
 |------|:-----------:|-------|
 | Authorization | Sim | `Bearer <access_token>` |
 
----
+### Parâmetros
 
-### Parâmetros de Consulta
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-|-----------|------|:-----------:|-----------|
-| `page` | Integer | Não | Número da página. Padrão: `0`. |
-| `size` | Integer | Não | Quantidade de registros por página. Padrão: `20`. |
-| `sort` | String | Não | Campo e direção da ordenação (`campo,asc` ou `campo,desc`). |
-
-> Os campos permitidos para ordenação são: `name`, `email`, `active`, `createdAt` e `updatedAt`.
-
-Exemplo:
-
-```http
-GET /api/v1/users?page=0&size=20&sort=name,asc
-Authorization: Bearer <access_token>
-```
-
----
+| Nome | Tipo | Obrigatório | Padrão | Descrição |
+|------|------|:-----------:|--------|-----------|
+| page | Integer | Não | 0 | Página. |
+| size | Integer | Não | 10 | Quantidade de registros. |
+| sort | String | Não | `name,asc` | Campo de ordenação. |
 
 ### Resposta de Sucesso
 
-DTO: `PageResponse<UserResponse>`
-
-```json
-{
-  "content": [
-    {
-      "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
-      "name": "João Silva",
-      "email": "joao.silva@email.com",
-      "active": true
-    },
-    {
-      "id": "0fd9ddc5-12f0-42cb-bfc7-3dc6dbf2c26f",
-      "name": "Maria Oliveira",
-      "email": "maria.oliveira@email.com",
-      "active": true
-    }
-  ],
-  "page": 0,
-  "size": 20,
-  "totalElements": 2,
-  "totalPages": 1
-}
-```
-
----
+DTO: `Page<UserResponse>`
 
 ### Regras de Negócio
 
-- Apenas usuários autenticados com a permissão `USER_READ` podem consultar usuários.
-- O resultado é retornado de forma paginada.
-- A ordenação deve utilizar apenas os campos permitidos pela API.
-
----
+- Apenas usuários com papel `ADMIN` podem listar usuários.
+- A paginação utiliza Spring Data.
 
 ### Códigos HTTP
 
 | Código | Descrição |
 |---------|-----------|
-| `200 OK` | Lista de usuários retornada com sucesso. |
-| `401 Unauthorized` | Usuário não autenticado. |
-| `403 Forbidden` | Usuário sem permissão para consultar usuários. |
+| `200 OK` | Consulta realizada com sucesso. |
+| `403 Forbidden` | Usuário sem permissão. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
 
-### Observação
+<a id="buscar-usuario"></a>
 
-Os padrões de paginação, ordenação e filtros estão definidos em **12-convencoes-do-projeto.md**.
-
-⬆️ [Voltar ao índice](#indice)
-
-
-
-
-
-
-## 5.2.3 Buscar Usuário por ID
+## 🔍 Buscar Usuário
 
 ### Objetivo
 
-Retornar os dados de um usuário a partir do seu identificador.
-
----
+Consultar um usuário pelo identificador.
 
 ### Endpoint
 
@@ -774,19 +578,13 @@ Retornar os dados de um usuário a partir do seu identificador.
 GET /api/v1/users/{id}
 ```
 
----
-
 ### Autenticação
 
 Obrigatória (`Bearer Token`).
 
----
-
 ### Permissão
 
-`USER_READ`
-
----
+`ADMIN`
 
 ### Cabeçalhos
 
@@ -794,81 +592,39 @@ Obrigatória (`Bearer Token`).
 |------|:-----------:|-------|
 | Authorization | Sim | `Bearer <access_token>` |
 
----
+### Parâmetros
 
-### Parâmetros de Caminho
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-|-----------|------|:-----------:|-----------|
-| `id` | UUID | Sim | Identificador único do usuário. |
-
-Exemplo:
-
-```http
-GET /api/v1/users/efbdf77f-24dd-45b3-a130-3e60ef7b1f6a
-Authorization: Bearer <access_token>
-```
-
----
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|:-----------:|-----------|
+| id | UUID | Sim | Identificador do usuário. |
 
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
 
-```json
-{
-  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
-  "name": "João Silva",
-  "email": "joao.silva@email.com",
-  "roles": [
-    {
-      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
-      "name": "ADMIN"
-    }
-  ],
-  "active": true,
-  "createdAt": "2026-08-15T14:30:00Z",
-  "updatedAt": "2026-08-15T14:30:00Z"
-}
-```
-
----
-
 ### Regras de Negócio
 
-- Apenas usuários autenticados com a permissão `USER_READ` podem consultar usuários.
-- O identificador informado deve corresponder a um usuário existente.
-
----
+- Apenas usuários com papel `ADMIN` podem consultar usuários.
+- O usuário deve existir.
 
 ### Códigos HTTP
 
 | Código | Descrição |
 |---------|-----------|
-| `200 OK` | Usuário encontrado com sucesso. |
-| `401 Unauthorized` | Usuário não autenticado. |
-| `403 Forbidden` | Usuário sem permissão para consultar usuários. |
+| `200 OK` | Usuário encontrado. |
+| `403 Forbidden` | Usuário sem permissão. |
 | `404 Not Found` | Usuário não encontrado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
 
-### Observação
+<a id="atualizar-usuario"></a>
 
-O identificador do usuário é um UUID gerado automaticamente pela plataforma e não pode ser alterado.
-
-⬆️ [Voltar ao índice](#indice)
-
-
-
-
-## 5.2.4 Atualizar Usuário
+## ✏️ Atualizar Usuário
 
 ### Objetivo
 
-Atualizar os dados cadastrais de um usuário existente.
-
----
+Atualizar os dados cadastrais de um usuário.
 
 ### Endpoint
 
@@ -876,19 +632,13 @@ Atualizar os dados cadastrais de um usuário existente.
 PUT /api/v1/users/{id}
 ```
 
----
-
 ### Autenticação
 
 Obrigatória (`Bearer Token`).
 
----
-
 ### Permissão
 
-`USER_UPDATE`
-
----
+`ADMIN`
 
 ### Cabeçalhos
 
@@ -897,104 +647,46 @@ Obrigatória (`Bearer Token`).
 | Authorization | Sim | `Bearer <access_token>` |
 | Content-Type | Sim | `application/json` |
 
----
+### Parâmetros
 
-### Parâmetros de Caminho
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-|-----------|------|:-----------:|-----------|
-| `id` | UUID | Sim | Identificador único do usuário. |
-
----
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|:-----------:|-----------|
+| id | UUID | Sim | Identificador do usuário. |
 
 ### Corpo da Requisição
 
 DTO: `UpdateUserRequest`
 
-| Campo | Tipo | Obrigatório | Descrição |
-|--------|------|:-----------:|-----------|
-| `name` | String | Sim | Nome completo do usuário. |
-| `email` | String | Sim | Endereço de e-mail. |
-| `roleIds` | List<UUID> | Sim | Papéis atribuídos ao usuário. |
-
-Exemplo:
-
-```json
-{
-  "name": "João Silva Santos",
-  "email": "joao.santos@email.com",
-  "roleIds": [
-    "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11"
-  ]
-}
-```
-
----
-
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
 
-```json
-{
-  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
-  "name": "João Silva Santos",
-  "email": "joao.santos@email.com",
-  "roles": [
-    {
-      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
-      "name": "ADMIN"
-    }
-  ],
-  "active": true,
-  "createdAt": "2026-08-15T14:30:00Z",
-  "updatedAt": "2026-08-18T09:15:00Z"
-}
-```
-
----
-
 ### Regras de Negócio
 
-- O usuário deve existir.
-- O e-mail deve permanecer único na plataforma.
-- Todos os papéis informados devem existir.
-- O usuário será associado aos papéis informados.
-- O identificador do usuário não pode ser alterado.
-
----
+- Apenas `name`, `email` e `role` podem ser alterados.
+- O status do usuário não pode ser alterado neste endpoint.
+- O e-mail deve permanecer único.
 
 ### Códigos HTTP
 
 | Código | Descrição |
 |---------|-----------|
 | `200 OK` | Usuário atualizado com sucesso. |
-| `400 Bad Request` | Requisição inválida. |
-| `401 Unauthorized` | Usuário não autenticado. |
-| `403 Forbidden` | Usuário sem permissão para atualizar usuários. |
+| `400 Bad Request` | Dados inválidos. |
+| `403 Forbidden` | Usuário sem permissão. |
 | `404 Not Found` | Usuário não encontrado. |
-| `409 Conflict` | Já existe um usuário com o e-mail informado. |
+| `409 Conflict` | E-mail já utilizado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
 
-### Observação
+<a id="alterar-status-do-usuario"></a>
 
-A alteração da senha e do status do usuário é realizada por endpoints específicos e não faz parte desta operação.
-
-⬆️ [Voltar ao índice](#indice)
-
-
-
-
-
-## 5.2.5 Alterar Status do Usuário
+## 🔄 Alterar Status do Usuário
 
 ### Objetivo
 
-Alterar o status de um usuário da plataforma.
-
----
+Alterar o status de um usuário.
 
 ### Endpoint
 
@@ -1002,19 +694,13 @@ Alterar o status de um usuário da plataforma.
 PATCH /api/v1/users/{id}/status
 ```
 
----
-
 ### Autenticação
 
 Obrigatória (`Bearer Token`).
 
----
-
 ### Permissão
 
-`USER_UPDATE_STATUS`
-
----
+`ADMIN`
 
 ### Cabeçalhos
 
@@ -1023,256 +709,167 @@ Obrigatória (`Bearer Token`).
 | Authorization | Sim | `Bearer <access_token>` |
 | Content-Type | Sim | `application/json` |
 
----
+### Parâmetros
 
-### Parâmetros de Caminho
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-|-----------|------|:-----------:|-----------|
-| `id` | UUID | Sim | Identificador único do usuário. |
-
----
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|:-----------:|-----------|
+| id | UUID | Sim | Identificador do usuário. |
 
 ### Corpo da Requisição
 
 DTO: `UpdateUserStatusRequest`
 
-| Campo | Tipo | Obrigatório | Descrição |
-|--------|------|:-----------:|-----------|
-| `status` | UserStatus | Sim | Novo status do usuário. Valores permitidos: `ACTIVE`, `INACTIVE` e `BLOCKED`. |
-
-Exemplo:
-
-```json
-{
-  "status": "INACTIVE"
-}
-```
-
----
-
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
 
-```json
-{
-  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
-  "name": "João Silva",
-  "email": "joao.silva@email.com",
-  "roles": [
-    {
-      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
-      "name": "ADMIN"
-    }
-  ],
-  "status": "INACTIVE",
-  "createdAt": "2026-08-15T14:30:00Z",
-  "updatedAt": "2026-08-20T16:45:00Z"
-}
-```
-
----
-
 ### Regras de Negócio
 
-- O usuário deve existir.
-- Apenas usuários com a permissão `USER_UPDATE_STATUS` podem alterar o status de outros usuários.
-- A operação altera apenas o status do usuário, preservando os demais dados cadastrais.
-- Usuários com status `INACTIVE` ou `BLOCKED` não podem autenticar-se na plataforma.
-
----
+- Apenas usuários com papel `ADMIN` podem alterar o status.
+- Status permitidos:
+  - `ACTIVE`
+  - `INACTIVE`
+  - `BLOCKED`
+- Apenas o status pode ser alterado por este endpoint.
 
 ### Códigos HTTP
 
 | Código | Descrição |
 |---------|-----------|
-| `200 OK` | Status do usuário atualizado com sucesso. |
-| `400 Bad Request` | Requisição inválida. |
-| `401 Unauthorized` | Usuário não autenticado. |
-| `403 Forbidden` | Usuário sem permissão para alterar o status de usuários. |
+| `200 OK` | Status alterado com sucesso. |
+| `400 Bad Request` | Status inválido. |
+| `403 Forbidden` | Usuário sem permissão. |
 | `404 Not Found` | Usuário não encontrado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
 
----
-
-### Observação
-
-Este endpoint é responsável exclusivamente pela alteração do status do usuário. Alterações cadastrais devem ser realizadas por meio do endpoint `PUT /api/v1/users/{id}`.
-
-⬆️ [Voltar ao índice](#indice)
 
 
 
-# Papéis (Roles)
+<a id="papeis"></a>
 
-## Visão Geral
+# 🛡️ Papéis (Roles)
 
-O Examen Crediti utiliza **RBAC (Role-Based Access Control)** para controle de acesso.
+A autorização da plataforma é baseada em **RBAC (Role-Based Access Control)**.
 
-Os papéis são **fixos**, cadastrados automaticamente durante a inicialização da aplicação por meio de migrations. Não existe funcionalidade para criação, edição ou exclusão de papéis via API.
-
-Cada usuário possui **exatamente um papel**, que define seu perfil de acesso na plataforma.
-
-A autorização aos recursos é realizada pelos microsserviços com base no papel presente no JWT emitido pela Identity Service.
+Os papéis são fixos, cadastrados automaticamente durante a inicialização da aplicação e não podem ser criados, alterados ou removidos por meio da API.
 
 ---
 
-## Papéis Disponíveis
+<a id="tipos-de-papeis"></a>
 
-### ADMIN
+## 📖 Tipos de Papéis
 
-**Descrição**
-
-Responsável pela administração da plataforma.
-
-Possui acesso às funcionalidades administrativas da Identity Service e às operações administrativas dos demais microsserviços.
-
-**Principais responsabilidades**
-
-- Gerenciar usuários.
-- Atribuir papéis aos usuários.
-- Alterar status de usuários.
-- Acessar funcionalidades administrativas da plataforma.
-
----
-
-### ANALYST
-
-**Descrição**
-
-Responsável pelas operações de negócio relacionadas ao processo de análise de crédito.
-
-Este é o perfil utilizado pelos usuários responsáveis pela operação diária do sistema.
-
-**Principais responsabilidades**
-
-- Consultar clientes.
-- Cadastrar clientes.
-- Atualizar dados cadastrais.
-- Solicitar análises de crédito.
-- Aprovar ou rejeitar solicitações de crédito.
-- Consultar histórico das análises.
-
----
-
-### SYSTEM
-
-**Descrição**
-
-Conta técnica utilizada para autenticação e comunicação segura entre microsserviços.
-
-Não representa um usuário humano e não pode ser utilizada para acesso à aplicação.
-
-**Exemplos de utilização**
-
-- Customer Service → Credit Analysis Service
-- Credit Analysis Service → Notification Service
-- Credit Analysis Service → Audit Service
-
----
-
-## Considerações
-
-- Os papéis são fixos e imutáveis em tempo de execução.
-- Cada usuário possui exatamente um papel.
-- Não existe CRUD de papéis.
-- A autorização é baseada exclusivamente no papel presente no JWT.
-- Cada microsserviço define quais papéis possuem acesso aos seus respectivos recursos.
-
-
-
-# JWT (JSON Web Token)
-
-## Visão Geral
-
-A Identity Service utiliza **JWT (JSON Web Token)** para autenticação e autorização dos usuários da plataforma.
-
-Após uma autenticação bem-sucedida, a Identity Service emite um Access Token contendo as informações necessárias para identificar o usuário e seu papel.
-
-Os microsserviços validam o JWT e utilizam as informações presentes no token para autorizar o acesso aos seus recursos.
-
----
-
-## Estrutura do JWT
-
-O Access Token possui as seguintes claims:
-
-| Claim | Descrição |
+| Papel | Descrição |
 |--------|-----------|
-| `sub` | Identificador único do usuário. |
-| `email` | E-mail do usuário autenticado. |
-| `role` | Papel atribuído ao usuário. |
-| `iat` | Data e hora de emissão do token. |
-| `exp` | Data e hora de expiração do token. |
+| `ADMIN` | Gerencia usuários e possui acesso administrativo à plataforma. |
+| `ANALYST` | Realiza as operações relacionadas à análise de crédito. |
+| `SYSTEM` | Utilizado para comunicação entre microsserviços e processos internos da plataforma. |
+
+### Regras de Negócio
+
+- Cada usuário possui exatamente um papel.
+- Um papel pode ser atribuído a vários usuários.
+- Os papéis são cadastrados automaticamente pelo Flyway.
+- Não existe endpoint para gerenciamento de papéis.
+- A autorização é baseada exclusivamente no papel presente no JWT.
 
 ---
 
-## Exemplo de Payload
+<a id="jwt"></a>
+
+# 🎫 JWT (JSON Web Token)
+
+O Access Token é um **JSON Web Token (JWT)** utilizado para autenticação e autorização entre os microsserviços da plataforma.
+
+Após a autenticação, a Identity Service emite um JWT que acompanha todas as requisições protegidas.
+
+## Estrutura do Token
+
+O JWT é composto por três partes:
+
+```text
+Header.Payload.Signature
+```
+
+## Cabeçalho (Header)
 
 ```json
 {
-  "sub": "3df58a8d-3d86-4f7c-8d0d-9b74b80e1a7a",
-  "email": "analyst@examencrediti.com",
-  "role": "ANALYST",
-  "iat": 1753646400,
-  "exp": 1753650000
+  "alg": "HS256",
+  "typ": "JWT"
 }
 ```
 
----
+## Payload
 
-## Processo de Autenticação
-
-1. O usuário envia suas credenciais para a Identity Service.
-2. A Identity Service valida as credenciais.
-3. Um Access Token e um Refresh Token são gerados.
-4. O cliente utiliza o Access Token nas requisições aos microsserviços.
-5. Cada microsserviço valida o token e verifica o papel do usuário para autorizar o acesso ao recurso solicitado.
-
----
-
-## Utilização do Token
-
-O Access Token deve ser enviado em todas as requisições autenticadas por meio do cabeçalho HTTP `Authorization`.
-
-### Exemplo
-
-```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
----
-
-## Expiração
-
-O Access Token possui tempo de vida limitado.
-
-Após sua expiração, um novo Access Token deve ser obtido utilizando o endpoint de renovação (`Refresh Token`).
-
----
-
-## Modelo de Autorização
-
-O Examen Crediti utiliza **RBAC (Role-Based Access Control)**.
-
-Cada usuário possui exatamente um papel, que é incluído no JWT pela Identity Service.
-
-Os microsserviços utilizam o papel presente no token para controlar o acesso aos seus recursos.
+| Claim | Descrição |
+|--------|-----------|
+| `sub` | Identificador do usuário. |
+| `email` | E-mail do usuário. |
+| `role` | Papel do usuário. |
+| `iat` | Data de emissão. |
+| `exp` | Data de expiração. |
 
 Exemplo:
 
-- `ADMIN`
-- `ANALYST`
-- `SYSTEM`
-
----
-
-## Considerações
-
-- O JWT é emitido exclusivamente pela Identity Service.
-- O Access Token não armazena informações de negócio.
-- O Access Token contém apenas os dados necessários para identificação e autorização do usuário.
-- O papel do usuário é utilizado pelos microsserviços para controlar o acesso aos recursos.
-- A renovação do Access Token é realizada por meio do Refresh Token.
+```json
+{
+  "sub": "2a6fd44b-6f9c-46b6-a3d5-2dc0a3d5b3b5",
+  "email": "analyst@examencrediti.com",
+  "role": "ANALYST",
+  "iat": 1722100000,
+  "exp": 1722100900
+}
 ```
+
+## Assinatura
+
+A assinatura garante a integridade do token e impede alterações em seu conteúdo.
+
+## Regras de Negócio
+
+- O JWT é emitido apenas após autenticação bem-sucedida.
+- O JWT possui tempo de expiração limitado.
+- O JWT não é armazenado no banco de dados.
+- O papel (`role`) é utilizado pelos microsserviços para autorização.
+- O Access Token permanece válido até sua expiração natural.
+- O Logout revoga apenas o Refresh Token.
+
+## Utilização
+
+Os endpoints protegidos devem receber o JWT no cabeçalho HTTP:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+
+
+
+## Fluxo de Autenticação
+
+```text
+┌──────────┐
+│  Login   │
+└────┬─────┘
+     │
+     ▼
+Identity Service
+     │
+     ├──► Access Token (JWT)
+     └──► Refresh Token
+                │
+                ▼
+     Cliente realiza requisições
+                │
+     Access Token expirou?
+                │
+        ┌───────┴────────┐
+        │                │
+      Não              Sim
+        │                │
+        ▼                ▼
+ Continua usando   POST /auth/refresh
+                        │
+                        ▼
+         Novo Access Token + Novo Refresh Token
