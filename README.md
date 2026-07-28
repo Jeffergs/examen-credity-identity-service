@@ -372,6 +372,8 @@ Utilizado para criar um novo usuário.
 
 ⬆️ [Voltar ao índice](#indice)
 
+---
+
 <a id="update-user-request"></a>
 ### UpdateUserRequest
 
@@ -392,9 +394,10 @@ Utilizado para atualizar os dados cadastrais de um usuário.
   "role": "ADMIN"
 }
 ```
----
 
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="update-user-status-request"></a>
 ### UpdateUserStatusRequest
@@ -419,9 +422,9 @@ Utilizado para alterar o status de um usuário.
 }
 ```
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="login-request"></a>
 ### LoginRequest
@@ -442,9 +445,9 @@ Utilizado para autenticar um usuário.
 }
 ```
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="refresh-token-request"></a>
 ### RefreshTokenRequest
@@ -462,12 +465,11 @@ Utilizado pelos endpoints de renovação de token e logout.
   "refreshToken": "<refresh_token>"
 }
 ```
+⬆️ [Voltar ao índice](#indice)
 
 ---
 
-⬆️ [Voltar ao índice](#indice)
-
-<a id=""></a>
+<a id="response-dtos"></a>
 ## 📥 Modelos de resposta (Response DTOs)
 
 <a id="login-response"></a>
@@ -493,9 +495,9 @@ Retornado após autenticação bem-sucedida.
 }
 ```
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="refresh-token-response"></a>
 ### RefreshTokenResponse
@@ -520,9 +522,9 @@ Retornado após a renovação de um Access Token.
 }
 ```
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="user-response"></a>
 ### UserResponse
@@ -549,9 +551,9 @@ Representa os dados de um usuário retornados pela API.
 }
 ```
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="page-user-response"></a>
 ### Page<UserResponse>
@@ -586,9 +588,9 @@ Representa uma resposta paginada utilizando o padrão do Spring Data.
 }
 ```
 
----
-
 ⬆️ [Voltar ao índice](#indice)
+
+---
 
 <a id="message-response"></a>
 ### MessageResponse
