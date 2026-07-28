@@ -628,3 +628,128 @@ DTO: `UserResponse`
 O identificador do usuário é um UUID gerado automaticamente pela plataforma e não pode ser alterado.
 
 ⬆️ [Voltar ao índice](#indice)
+
+
+
+
+## 5.2.4 Atualizar Usuário
+
+### Objetivo
+
+Atualizar os dados cadastrais de um usuário existente.
+
+---
+
+### Endpoint
+
+```http
+PUT /api/v1/users/{id}
+```
+
+---
+
+### Autenticação
+
+Obrigatória (`Bearer Token`).
+
+---
+
+### Permissão
+
+`USER_UPDATE`
+
+---
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Authorization | Sim | `Bearer <access_token>` |
+| Content-Type | Sim | `application/json` |
+
+---
+
+### Parâmetros de Caminho
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|:-----------:|-----------|
+| `id` | UUID | Sim | Identificador único do usuário. |
+
+---
+
+### Corpo da Requisição
+
+DTO: `UpdateUserRequest`
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `name` | String | Sim | Nome completo do usuário. |
+| `email` | String | Sim | Endereço de e-mail. |
+| `roleIds` | List<UUID> | Sim | Papéis atribuídos ao usuário. |
+
+Exemplo:
+
+```json
+{
+  "name": "João Silva Santos",
+  "email": "joao.santos@email.com",
+  "roleIds": [
+    "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11"
+  ]
+}
+```
+
+---
+
+### Resposta de Sucesso
+
+DTO: `UserResponse`
+
+```json
+{
+  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
+  "name": "João Silva Santos",
+  "email": "joao.santos@email.com",
+  "roles": [
+    {
+      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
+      "name": "ADMIN"
+    }
+  ],
+  "active": true,
+  "createdAt": "2026-08-15T14:30:00Z",
+  "updatedAt": "2026-08-18T09:15:00Z"
+}
+```
+
+---
+
+### Regras de Negócio
+
+- O usuário deve existir.
+- O e-mail deve permanecer único na plataforma.
+- Todos os papéis informados devem existir.
+- O usuário será associado aos papéis informados.
+- O identificador do usuário não pode ser alterado.
+
+---
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Usuário atualizado com sucesso. |
+| `400 Bad Request` | Requisição inválida. |
+| `401 Unauthorized` | Usuário não autenticado. |
+| `403 Forbidden` | Usuário sem permissão para atualizar usuários. |
+| `404 Not Found` | Usuário não encontrado. |
+| `409 Conflict` | Já existe um usuário com o e-mail informado. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+### Observação
+
+A alteração da senha e do status do usuário é realizada por endpoints específicos e não faz parte desta operação.
+
+⬆️ [Voltar ao índice](#indice)
