@@ -950,3 +950,99 @@ Não representa um usuário humano e não pode ser utilizada para acesso à apli
 - A autorização é baseada exclusivamente no papel presente no JWT.
 - Cada microsserviço define quais papéis possuem acesso aos seus respectivos recursos.
 
+
+
+# JWT (JSON Web Token)
+
+## Visão Geral
+
+A Identity Service utiliza **JWT (JSON Web Token)** para autenticação e autorização dos usuários da plataforma.
+
+Após uma autenticação bem-sucedida, a Identity Service emite um Access Token contendo as informações necessárias para identificar o usuário e seu papel.
+
+Os microsserviços validam o JWT e utilizam as informações presentes no token para autorizar o acesso aos seus recursos.
+
+---
+
+## Estrutura do JWT
+
+O Access Token possui as seguintes claims:
+
+| Claim | Descrição |
+|--------|-----------|
+| `sub` | Identificador único do usuário. |
+| `email` | E-mail do usuário autenticado. |
+| `role` | Papel atribuído ao usuário. |
+| `iat` | Data e hora de emissão do token. |
+| `exp` | Data e hora de expiração do token. |
+
+---
+
+## Exemplo de Payload
+
+```json
+{
+  "sub": "3df58a8d-3d86-4f7c-8d0d-9b74b80e1a7a",
+  "email": "analyst@examencrediti.com",
+  "role": "ANALYST",
+  "iat": 1753646400,
+  "exp": 1753650000
+}
+```
+
+---
+
+## Processo de Autenticação
+
+1. O usuário envia suas credenciais para a Identity Service.
+2. A Identity Service valida as credenciais.
+3. Um Access Token e um Refresh Token são gerados.
+4. O cliente utiliza o Access Token nas requisições aos microsserviços.
+5. Cada microsserviço valida o token e verifica o papel do usuário para autorizar o acesso ao recurso solicitado.
+
+---
+
+## Utilização do Token
+
+O Access Token deve ser enviado em todas as requisições autenticadas por meio do cabeçalho HTTP `Authorization`.
+
+### Exemplo
+
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+---
+
+## Expiração
+
+O Access Token possui tempo de vida limitado.
+
+Após sua expiração, um novo Access Token deve ser obtido utilizando o endpoint de renovação (`Refresh Token`).
+
+---
+
+## Modelo de Autorização
+
+O Examen Crediti utiliza **RBAC (Role-Based Access Control)**.
+
+Cada usuário possui exatamente um papel, que é incluído no JWT pela Identity Service.
+
+Os microsserviços utilizam o papel presente no token para controlar o acesso aos seus recursos.
+
+Exemplo:
+
+- `ADMIN`
+- `ANALYST`
+- `SYSTEM`
+
+---
+
+## Considerações
+
+- O JWT é emitido exclusivamente pela Identity Service.
+- O Access Token não armazena informações de negócio.
+- O Access Token contém apenas os dados necessários para identificação e autorização do usuário.
+- O papel do usuário é utilizado pelos microsserviços para controlar o acesso aos recursos.
+- A renovação do Access Token é realizada por meio do Refresh Token.
+```
