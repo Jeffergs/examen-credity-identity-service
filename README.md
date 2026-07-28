@@ -108,3 +108,101 @@ Em caso de sucesso, o usuário é autenticado e recebe um token JWT válido para
 | Senha inválida | Autenticação negada. |
 | Usuário inativo | Autenticação negada. |
 | Credenciais inválidas | Autenticação negada. |
+
+
+
+
+
+
+
+
+
+## Renovar Access Token
+
+### Objetivo
+
+Emitir um novo Access Token a partir de um Refresh Token válido, sem exigir uma nova autenticação.
+
+---
+
+### Endpoint
+
+```http
+POST /api/v1/auth/refresh
+```
+
+---
+
+### Autenticação
+
+Não requerida.
+
+---
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Content-Type | Sim | `application/json` |
+
+---
+
+### Corpo da Requisição
+
+DTO: `RefreshTokenRequest`
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `refreshToken` | String | Sim | Refresh Token válido emitido durante a autenticação. |
+
+Exemplo:
+
+```json
+{
+  "refreshToken": "<refresh_token>"
+}
+```
+
+---
+
+### Resposta de Sucesso
+
+DTO: `RefreshTokenResponse`
+
+```json
+{
+  "accessToken": "<novo_access_token>",
+  "refreshToken": "<novo_refresh_token>",
+  "tokenType": "Bearer",
+  "expiresIn": 900
+}
+```
+
+---
+
+### Regras de Negócio
+
+- O Refresh Token deve ser válido.
+- O Refresh Token não pode estar expirado.
+- O Refresh Token não pode estar revogado.
+- Um novo Access Token é emitido para o usuário autenticado.
+- Um novo Refresh Token é emitido e o token anterior é invalidado (Refresh Token Rotation).
+
+---
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Novo Access Token emitido com sucesso. |
+| `400 Bad Request` | Requisição inválida. |
+| `401 Unauthorized` | Refresh Token inválido, expirado ou revogado. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+### Observação
+
+O Identity Service adota a estratégia de **Refresh Token Rotation**. A cada renovação, um novo Refresh Token é emitido e o token utilizado na requisição é invalidado imediatamente.
+
+Os detalhes sobre expiração, revogação, rotação e blacklist de tokens estão descritos em **09-arquitetura-de-seguranca.md**.
