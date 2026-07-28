@@ -12,6 +12,9 @@
    - 2.1 [📖 Visão Geral](#modelo-visao-geral)
    - 2.2 [📊 Modelo Conceitual](#modelo-conceitual)
    - 2.3 [🏛️ Entidades](#entidades)
+      - 2.3.1 [👤 User](#user)
+      - 2.3.2 [🛡️ Role](#role)
+      - 2.3.3 [refresh-token](#refresh-token)
    - 2.4 [🔗 Relacionamentos](#relacionamentos)
    - 2.5[📐 Regras de Modelagem](#regras-de-modelagem)
 3. [🛡️ Papéis (Roles)](#papeis)
@@ -64,6 +67,8 @@ A Identity Service é o microsserviço responsável pelo gerenciamento da identi
 
 Suas principais responsabilidades incluem autenticação, emissão e renovação de tokens JWT, gerenciamento de usuários e controle de acesso baseado em papéis (RBAC), fornecendo os mecanismos de segurança utilizados pelos demais microsserviços.
 
+⬆️ [Voltar ao índice](#indice)
+
 ---
 
 <a id="responsabilidades"></a>
@@ -79,6 +84,8 @@ A Identity Service é responsável por:
 - Gerenciar usuários.
 - Gerenciar papéis de acesso (Roles).
 - Fornecer informações de identidade para os demais microsserviços.
+
+⬆️ [Voltar ao índice](#indice)
 
 ---
 
@@ -113,6 +120,8 @@ O modelo de dados é composto por três entidades:
 - **User**: representa um usuário autenticável.
 - **Role**: representa o papel atribuído ao usuário.
 - **RefreshToken**: representa o token utilizado para renovação de Access Tokens.
+
+⬆️ [Voltar ao índice](#indice)
 
 ---
 
@@ -155,10 +164,12 @@ erDiagram
     }
 ```
 
-<a id="entidades"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="entidades"></a>
 ## 🏛️ Entidades
 
+<a id="user"></a>
 ### 👤 User
 
 Representa um usuário autenticável da plataforma.
@@ -172,8 +183,11 @@ Cada usuário possui exatamente um papel e pode possuir múltiplos Refresh Token
 - Definir o papel de acesso.
 - Controlar o status da conta.
 
+⬆️ [Voltar ao índice](#indice)
+
 ---
 
+<a id="role"></a>
 ### 🛡️ Role
 
 Representa os papéis utilizados para autorização na plataforma.
@@ -188,8 +202,11 @@ Os papéis são fixos e cadastrados automaticamente durante a inicialização da
 | `ANALYST` | Operações de análise de crédito. |
 | `SYSTEM` | Comunicação entre microsserviços. |
 
+⬆️ [Voltar ao índice](#indice)
+
 ---
 
+<a id="refresh-token"></a>
 ### 🔄 Refresh Token
 
 Representa um token persistido utilizado para permitir a emissão de novos Access Tokens sem que o usuário precise realizar uma nova autenticação.
@@ -201,8 +218,11 @@ Representa um token persistido utilizado para permitir a emissão de novos Acces
 - Controlar sua revogação.
 - Associar o token a um usuário.
 
+⬆️ [Voltar ao índice](#indice)
+
 ---
 
+<a id="relacionamentos"></a>
 ## 🔗 Relacionamentos
 
 | Origem | Relacionamento | Destino |
@@ -210,10 +230,11 @@ Representa um token persistido utilizado para permitir a emissão de novos Acces
 | User | N:1 | Role |
 | User | 1:N | RefreshToken |
 
+⬆️ [Voltar ao índice](#indice)
+
 ---
 
 <a id="regras-de-modelagem"></a>
-
 ## 📐 Regras de Modelagem
 
 - Cada usuário possui exatamente um papel.
@@ -224,11 +245,11 @@ Representa um token persistido utilizado para permitir a emissão de novos Acces
 - Não existem entidades de Permission ou RolePermission.
 - A autorização é baseada exclusivamente no papel presente no JWT.
 
+⬆️ [Voltar ao índice](#indice)
 
-  
+ --- 
 
 <a id="papeis"></a>
-
 # 🛡️ Papéis (Roles)
 
 A autorização da plataforma é baseada em **RBAC (Role-Based Access Control)**.
@@ -245,7 +266,9 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 |--------|-----------|
 | `ADMIN` | Gerencia usuários e possui acesso administrativo à plataforma. |
 | `ANALYST` | Realiza as operações relacionadas à análise de crédito. |
-| `SYSTEM` | Utilizado para comunicação entre microsserviços e processos internos da plataforma. |
+| `SYSTEM` | Utilizado para comunicação entre microsserviços e processos internos da plataforma. |]
+
+⬆️ [Voltar ao índice](#indice)
 
 ## 📐 Regras de Negócio
 
@@ -254,10 +277,9 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 - Cada usuário possui exatamente um papel.
 - A autorização é baseada exclusivamente no papel presente no JWT.
 
+⬆️ [Voltar ao índice](#indice)
+
 ---
-
-
-
 
 <a id="jwt"></a>
 
@@ -266,6 +288,8 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 O Access Token é um **JSON Web Token (JWT)** emitido pela Identity Service após uma autenticação bem-sucedida.
 
 O token é utilizado pelos microsserviços para autenticação e autorização das requisições protegidas.
+
+⬆️ [Voltar ao índice](#indice)
 
 ---
 
@@ -293,6 +317,8 @@ Exemplo:
 }
 ```
 
+⬆️ [Voltar ao índice](#indice)
+
 ---
 
 ## 📐 Regras de Negócio
@@ -302,6 +328,8 @@ Exemplo:
 - O Access Token não é persistido no banco de dados.
 - O papel (`role`) presente no token é utilizado pelos microsserviços para autorização.
 - O Access Token permanece válido até sua expiração natural.
+
+⬆️ [Voltar ao índice](#indice)
 
 ---
 
@@ -313,11 +341,7 @@ Os endpoints protegidos devem receber o Access Token no cabeçalho HTTP:
 Authorization: Bearer <access_token>
 ```
 
-
-
-
-
-
+⬆️ [Voltar ao índice](#indice)
 
 
 
@@ -326,6 +350,8 @@ Authorization: Bearer <access_token>
 # 📦 Modelos de Requisição e Resposta (DTOs)
 
 Esta seção descreve os modelos de requisição e resposta utilizados pelos endpoints da API.
+
+⬆️ [Voltar ao índice](#indice)
 
 ---
 
@@ -355,6 +381,7 @@ Utilizado para criar um novo usuário.
 }
 ```
 
+⬆️ [Voltar ao índice](#indice)
 
 <a id="update-user-request"></a>
 
@@ -379,8 +406,9 @@ Utilizado para atualizar os dados cadastrais de um usuário.
 ```
 ---
 
-<a id="update-user-status-request"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="update-user-status-request"></a>
 ### UpdateUserStatusRequest
 
 Utilizado para alterar o status de um usuário.
@@ -405,8 +433,9 @@ Utilizado para alterar o status de um usuário.
 
 ---
 
-<a id="login-request"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="login-request"></a>
 ### LoginRequest
 
 Utilizado para autenticar um usuário.
@@ -427,8 +456,9 @@ Utilizado para autenticar um usuário.
 
 ---
 
-<a id="refresh-token-request"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="refresh-token-request"></a>
 ### RefreshTokenRequest
 
 Utilizado pelos endpoints de renovação de token e logout.
@@ -447,10 +477,11 @@ Utilizado pelos endpoints de renovação de token e logout.
 
 ---
 
+⬆️ [Voltar ao índice](#indice)
+
 ## 📥 Modelos de Resposta (Response DTOs)
 
 <a id="login-response"></a>
-
 ### LoginResponse
 
 Retornado após autenticação bem-sucedida.
@@ -475,8 +506,9 @@ Retornado após autenticação bem-sucedida.
 
 ---
 
-<a id="refresh-token-response"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="refresh-token-response"></a>
 ### RefreshTokenResponse
 
 Retornado após a renovação de um Access Token.
@@ -501,8 +533,9 @@ Retornado após a renovação de um Access Token.
 
 ---
 
-<a id="user-response"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="user-response"></a>
 ### UserResponse
 
 Representa os dados de um usuário retornados pela API.
@@ -529,8 +562,9 @@ Representa os dados de um usuário retornados pela API.
 
 ---
 
-<a id="page-user-response"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="page-user-response"></a>
 ### Page<UserResponse>
 
 Representa uma resposta paginada utilizando o padrão do Spring Data.
@@ -565,8 +599,9 @@ Representa uma resposta paginada utilizando o padrão do Spring Data.
 
 ---
 
-<a id="message-response"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="message-response"></a>
 ### MessageResponse
 
 Representa uma resposta simples contendo apenas uma mensagem descritiva da operação executada.
@@ -590,13 +625,9 @@ Representa uma resposta simples contendo apenas uma mensagem descritiva da opera
 - `POST /api/v1/auth/logout`
 - Endpoints administrativos que retornam apenas a confirmação da operação.
 
-
-
-
-
+⬆️ [Voltar ao índice](#indice)
 
 <a id="autenticacao"></a>
-
 # 🔐 Autenticação
 
 Esta seção documenta os endpoints responsáveis pela autenticação dos usuários, emissão de tokens, renovação de sessão e encerramento da autenticação.
@@ -604,7 +635,6 @@ Esta seção documenta os endpoints responsáveis pela autenticação dos usuár
 ---
 
 <a id="login"></a>
-
 ## 🔑 Login
 
 ### Objetivo
@@ -673,9 +703,9 @@ Exemplo:
 
 ---
 
+⬆️ [Voltar ao índice](#indice)
 
 <a id="refresh-token-endpoint"></a>
-
 ## ♻️ Refresh Token
 
 ### Objetivo
@@ -744,8 +774,9 @@ Exemplo:
 
 ---
 
-<a id="logout"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="logout"></a>
 ## 🚪 Logout
 
 ### Objetivo
@@ -811,7 +842,7 @@ Exemplo:
 
 ---
 
-
+⬆️ [Voltar ao índice](#indice)
 
 ## 🔄 Fluxo de Autenticação
 
@@ -850,8 +881,9 @@ Exemplo:
 
 ```
 
-<a id="usuarios"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="usuarios"></a>
 # 👥 Usuários
 
 Esta seção documenta os endpoints responsáveis pelo gerenciamento dos usuários da plataforma, incluindo criação, consulta, atualização e alteração de status.
@@ -859,7 +891,6 @@ Esta seção documenta os endpoints responsáveis pelo gerenciamento dos usuári
 ---
 
 <a id="criar-usuario"></a>
-
 ## ➕ Criar Usuário
 
 ### Objetivo
@@ -940,10 +971,9 @@ Exemplo:
 
 ---
 
-
+⬆️ [Voltar ao índice](#indice)
 
 <a id="listar-usuarios"></a>
-
 ## 📋 Listar Usuários
 
 ### Objetivo
@@ -1021,8 +1051,9 @@ Exemplo:
 
 ---
 
-<a id="buscar-usuario"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="buscar-usuario"></a>
 ## 🔍 Buscar Usuário
 
 ### Objetivo
@@ -1089,8 +1120,9 @@ Exemplo:
 
 ---
 
-<a id="atualizar-usuario"></a>
+⬆️ [Voltar ao índice](#indice)
 
+<a id="atualizar-usuario"></a>
 ## ✏️ Atualizar Usuário
 
 ### Objetivo
@@ -1175,8 +1207,10 @@ Exemplo:
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
-<a id="alterar-status-do-usuario"></a>
 
+⬆️ [Voltar ao índice](#indice)
+
+<a id="alterar-status-do-usuario"></a>
 ## 🔄 Alterar Status do Usuário
 
 ### Objetivo
@@ -1261,8 +1295,4 @@ Exemplo:
 
 ---
 
-
-
-
-
-
+⬆️ [Voltar ao índice](#indice)
