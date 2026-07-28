@@ -845,12 +845,11 @@ Exemplo:
 
 ```
 
-
 <a id="usuarios"></a>
 
 # 👥 Usuários
 
-Os endpoints desta seção são responsáveis pelo gerenciamento dos usuários da plataforma.
+Esta seção documenta os endpoints responsáveis pelo gerenciamento dos usuários da plataforma, incluindo criação, consulta, atualização e alteração de status.
 
 ---
 
@@ -880,16 +879,41 @@ Obrigatória (`Bearer Token`).
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Authorization | Sim | `Bearer <access_token>` |
-| Content-Type | Sim | `application/json` |
+| `Authorization` | Sim | `Bearer <access_token>` |
+| `Content-Type` | Sim | `application/json` |
 
 ### Corpo da Requisição
 
 DTO: `CreateUserRequest`
 
+Exemplo:
+
+```json
+{
+  "name": "<name>",
+  "email": "<email>",
+  "password": "<password>",
+  "role": "<role>"
+}
+```
+
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
+
+Exemplo:
+
+```json
+{
+  "id": "<user_uuid>",
+  "name": "<name>",
+  "email": "<email>",
+  "status": "ACTIVE",
+  "role": "<role>",
+  "createdAt": "<created_at>",
+  "updatedAt": "<updated_at>"
+}
+```
 
 ### Regras de Negócio
 
@@ -910,6 +934,8 @@ DTO: `UserResponse`
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
+
+
 
 <a id="listar-usuarios"></a>
 
@@ -937,24 +963,48 @@ Obrigatória (`Bearer Token`).
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Authorization | Sim | `Bearer <access_token>` |
+| `Authorization` | Sim | `Bearer <access_token>` |
 
-### Parâmetros
+### Parâmetros de Consulta
 
 | Nome | Tipo | Obrigatório | Padrão | Descrição |
 |------|------|:-----------:|--------|-----------|
-| page | Integer | Não | 0 | Página. |
-| size | Integer | Não | 10 | Quantidade de registros. |
-| sort | String | Não | `name,asc` | Campo de ordenação. |
+| `page` | Integer | Não | `0` | Número da página. |
+| `size` | Integer | Não | `10` | Quantidade de registros por página. |
+| `sort` | String | Não | `name,asc` | Campo e direção da ordenação. |
 
 ### Resposta de Sucesso
 
 DTO: `Page<UserResponse>`
 
+Exemplo:
+
+```json
+{
+  "content": [
+    {
+      "id": "<user_uuid>",
+      "name": "<name>",
+      "email": "<email>",
+      "status": "<status>",
+      "role": "<role>",
+      "createdAt": "<created_at>",
+      "updatedAt": "<updated_at>"
+    }
+  ],
+  "page": {
+    "size": 10,
+    "number": 0,
+    "totalElements": "<total_elements>",
+    "totalPages": "<total_pages>"
+  }
+}
+```
+
 ### Regras de Negócio
 
 - Apenas usuários com papel `ADMIN` podem listar usuários.
-- A paginação utiliza Spring Data.
+- A listagem é paginada utilizando Spring Data.
 
 ### Códigos HTTP
 
@@ -992,17 +1042,31 @@ Obrigatória (`Bearer Token`).
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Authorization | Sim | `Bearer <access_token>` |
+| `Authorization` | Sim | `Bearer <access_token>` |
 
-### Parâmetros
+### Parâmetros de Caminho
 
 | Nome | Tipo | Obrigatório | Descrição |
 |------|------|:-----------:|-----------|
-| id | UUID | Sim | Identificador do usuário. |
+| `id` | UUID | Sim | Identificador do usuário. |
 
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
+
+Exemplo:
+
+```json
+{
+  "id": "<user_uuid>",
+  "name": "<name>",
+  "email": "<email>",
+  "status": "<status>",
+  "role": "<role>",
+  "createdAt": "<created_at>",
+  "updatedAt": "<updated_at>"
+}
+```
 
 ### Regras de Negócio
 
@@ -1046,25 +1110,50 @@ Obrigatória (`Bearer Token`).
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Authorization | Sim | `Bearer <access_token>` |
-| Content-Type | Sim | `application/json` |
+| `Authorization` | Sim | `Bearer <access_token>` |
+| `Content-Type` | Sim | `application/json` |
 
-### Parâmetros
+### Parâmetros de Caminho
 
 | Nome | Tipo | Obrigatório | Descrição |
 |------|------|:-----------:|-----------|
-| id | UUID | Sim | Identificador do usuário. |
+| `id` | UUID | Sim | Identificador do usuário. |
 
 ### Corpo da Requisição
 
 DTO: `UpdateUserRequest`
 
+Exemplo:
+
+```json
+{
+  "name": "<name>",
+  "email": "<email>",
+  "role": "<role>"
+}
+```
+
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
 
+Exemplo:
+
+```json
+{
+  "id": "<user_uuid>",
+  "name": "<name>",
+  "email": "<email>",
+  "status": "<status>",
+  "role": "<role>",
+  "createdAt": "<created_at>",
+  "updatedAt": "<updated_at>"
+}
+```
+
 ### Regras de Negócio
 
+- Apenas usuários com papel `ADMIN` podem atualizar usuários.
 - Apenas `name`, `email` e `role` podem ser alterados.
 - O status do usuário não pode ser alterado neste endpoint.
 - O e-mail deve permanecer único.
@@ -1108,27 +1197,49 @@ Obrigatória (`Bearer Token`).
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Authorization | Sim | `Bearer <access_token>` |
-| Content-Type | Sim | `application/json` |
+| `Authorization` | Sim | `Bearer <access_token>` |
+| `Content-Type` | Sim | `application/json` |
 
-### Parâmetros
+### Parâmetros de Caminho
 
 | Nome | Tipo | Obrigatório | Descrição |
 |------|------|:-----------:|-----------|
-| id | UUID | Sim | Identificador do usuário. |
+| `id` | UUID | Sim | Identificador do usuário. |
 
 ### Corpo da Requisição
 
 DTO: `UpdateUserStatusRequest`
 
+Exemplo:
+
+```json
+{
+  "status": "<status>"
+}
+```
+
 ### Resposta de Sucesso
 
 DTO: `UserResponse`
 
+Exemplo:
+
+```json
+{
+  "id": "<user_uuid>",
+  "name": "<name>",
+  "email": "<email>",
+  "status": "<status>",
+  "role": "<role>",
+  "createdAt": "<created_at>",
+  "updatedAt": "<updated_at>"
+}
+```
+
 ### Regras de Negócio
 
-- Apenas usuários com papel `ADMIN` podem alterar o status.
-- Status permitidos:
+- Apenas usuários com papel `ADMIN` podem alterar o status de usuários.
+- Os status permitidos são:
   - `ACTIVE`
   - `INACTIVE`
   - `BLOCKED`
@@ -1143,6 +1254,94 @@ DTO: `UserResponse`
 | `403 Forbidden` | Usuário sem permissão. |
 | `404 Not Found` | Usuário não encontrado. |
 | `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+<a id="alterar-status-do-usuario"></a>
+
+## 🔄 Alterar Status do Usuário
+
+### Objetivo
+
+Alterar o status de um usuário.
+
+### Endpoint
+
+```http
+PATCH /api/v1/users/{id}/status
+```
+
+### Autenticação
+
+Obrigatória (`Bearer Token`).
+
+### Permissão
+
+`ADMIN`
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| `Authorization` | Sim | `Bearer <access_token>` |
+| `Content-Type` | Sim | `application/json` |
+
+### Parâmetros de Caminho
+
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|:-----------:|-----------|
+| `id` | UUID | Sim | Identificador do usuário. |
+
+### Corpo da Requisição
+
+DTO: `UpdateUserStatusRequest`
+
+Exemplo:
+
+```json
+{
+  "status": "<status>"
+}
+```
+
+### Resposta de Sucesso
+
+DTO: `UserResponse`
+
+Exemplo:
+
+```json
+{
+  "id": "<user_uuid>",
+  "name": "<name>",
+  "email": "<email>",
+  "status": "<status>",
+  "role": "<role>",
+  "createdAt": "<created_at>",
+  "updatedAt": "<updated_at>"
+}
+```
+
+### Regras de Negócio
+
+- Apenas usuários com papel `ADMIN` podem alterar o status de usuários.
+- Os status permitidos são:
+  - `ACTIVE`
+  - `INACTIVE`
+  - `BLOCKED`
+- Apenas o status pode ser alterado por este endpoint.
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Status alterado com sucesso. |
+| `400 Bad Request` | Status inválido. |
+| `403 Forbidden` | Usuário sem permissão. |
+| `404 Not Found` | Usuário não encontrado. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
 
 
 
