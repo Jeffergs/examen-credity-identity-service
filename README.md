@@ -1,3 +1,233 @@
+# 📑 Índice
+
+1. [📝 Visão Geral](#visao-geral)
+2. [🗄️ Modelo de Dados](#modelo-de-dados)
+   - [👤 User](#user)
+   - [🛡️ Role](#role)
+   - [🔄 Refresh Token](#refresh-token)
+3. [🔐 Autenticação](#autenticacao)
+   - [🔑 Login](#login)
+   - [♻️ Refresh Token](#refresh-token-endpoint)
+   - [🚪 Logout](#logout)
+4. [👥 Usuários](#usuarios)
+   - [➕ Criar Usuário](#criar-usuario)
+   - [📋 Listar Usuários](#listar-usuarios)
+   - [🔍 Buscar Usuário](#buscar-usuario)
+   - [✏️ Atualizar Usuário](#atualizar-usuario)
+   - [🔄 Alterar Status do Usuário](#alterar-status-do-usuario)
+5. [🛡️ Papéis (Roles)](#papeis)
+   - [📖 Tipos de Papéis](#tipos-de-papeis)
+6. [🎫 JWT (JSON Web Token)](#jwt)
+
+---
+
+<a id="visao-geral"></a>
+
+# 📝 Visão Geral
+
+---
+
+<a id="modelo-de-dados"></a>
+
+# 🗄️ Modelo de Dados
+
+## Visão Geral
+
+A Identity Service é responsável pelo gerenciamento da identidade dos usuários da plataforma.
+
+Seu modelo de dados é enxuto e composto por apenas três entidades:
+
+- **User**: representa os usuários autenticáveis da plataforma.
+- **Role**: representa os papéis disponíveis para autorização.
+- **RefreshToken**: controla a renovação segura dos Access Tokens.
+
+O relacionamento entre as entidades foi projetado para manter a separação entre autenticação e regras de negócio. Informações específicas dos demais microsserviços não são armazenadas na Identity Service.
+
+---
+
+## Modelo Conceitual
+
+```text
+Role (1)
+   │
+   │
+   └───────────────┐
+                   │
+                (*)
+               User (1)
+                   │
+                   │
+                   └───────────────┐
+                                   │
+                                (*)
+                          RefreshToken
+```
+
+---
+
+## Entidades
+
+<a id="user"></a>
+
+### 👤 User
+
+Representa um usuário autenticável da plataforma.
+
+Cada usuário possui exatamente um papel (Role) e pode possuir múltiplos Refresh Tokens ao longo de sua utilização do sistema.
+
+#### Responsabilidades
+
+- Identificação do usuário.
+- Autenticação.
+- Associação ao papel de acesso.
+- Controle do status da conta.
+
+---
+
+
+<a id="role"></a>
+
+### 🛡️ Role
+
+Representa os papéis disponíveis para autorização.
+
+Os papéis são fixos e cadastrados automaticamente durante a inicialização da aplicação por meio de migrations.
+
+Não existe funcionalidade para criação, edição ou exclusão de papéis.
+
+Papéis disponíveis:
+
+- ADMIN
+- ANALYST
+- SYSTEM
+
+---
+
+<a id="refresh-token"></a>
+
+### 🔄 Refresh Token
+
+Representa um token utilizado para renovação do Access Token.
+
+Cada renovação gera um novo Refresh Token, invalidando o anterior (Refresh Token Rotation).
+
+Essa estratégia reduz riscos de reutilização de tokens comprometidos.
+
+---
+
+### Relacionamentos
+
+| Origem | Relacionamento | Destino |
+|---------|----------------|---------|
+| User | N : 1 | Role |
+| User | 1 : N | RefreshToken |
+
+---
+
+### Regras de Modelagem
+
+- Cada usuário possui exatamente um papel.
+- Um papel pode ser associado a vários usuários.
+- Um usuário pode possuir vários Refresh Tokens.
+- Um Refresh Token pertence a apenas um usuário.
+- Os papéis são imutáveis durante a execução da aplicação.
+- Não existem entidades de Permission ou RolePermission.
+- A autorização é baseada exclusivamente no papel presente no JWT.
+
+---
+
+### Considerações
+
+A Identity Service armazena apenas informações relacionadas à identidade e autenticação.
+
+Não são armazenados dados de clientes, análises de crédito, notificações, auditorias ou quaisquer informações de negócio pertencentes aos demais microsserviços.
+---
+
+
+
+
+
+
+
+---
+
+<a id="autenticacao"></a>
+
+# 🔐 Autenticação
+
+---
+
+<a id="login"></a>
+
+## 🔑 Login
+
+---
+
+<a id="refresh-token-endpoint"></a>
+
+## ♻️ Refresh Token
+
+---
+
+<a id="logout"></a>
+
+## 🚪 Logout
+
+---
+
+<a id="usuarios"></a>
+
+# 👥 Usuários
+
+---
+
+<a id="criar-usuario"></a>
+
+## ➕ Criar Usuário
+
+---
+
+<a id="listar-usuarios"></a>
+
+## 📋 Listar Usuários
+
+---
+
+<a id="buscar-usuario"></a>
+
+## 🔍 Buscar Usuário
+
+---
+
+<a id="atualizar-usuario"></a>
+
+## ✏️ Atualizar Usuário
+
+---
+
+<a id="alterar-status-do-usuario"></a>
+
+## 🔄 Alterar Status do Usuário
+
+---
+
+<a id="papeis"></a>
+
+# 🛡️ Papéis (Roles)
+
+---
+
+<a id="tipos-de-papeis"></a>
+
+## 📖 Tipos de Papéis
+
+---
+
+<a id="jwt"></a>
+
+# 🎫 JWT (JSON Web Token)
+
+
 # Identity Service
 
 ## Objetivo
