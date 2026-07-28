@@ -753,3 +753,121 @@ DTO: `UserResponse`
 A alteração da senha e do status do usuário é realizada por endpoints específicos e não faz parte desta operação.
 
 ⬆️ [Voltar ao índice](#indice)
+
+
+
+
+
+## 5.2.5 Alterar Status do Usuário
+
+### Objetivo
+
+Alterar o status de um usuário da plataforma.
+
+---
+
+### Endpoint
+
+```http
+PATCH /api/v1/users/{id}/status
+```
+
+---
+
+### Autenticação
+
+Obrigatória (`Bearer Token`).
+
+---
+
+### Permissão
+
+`USER_UPDATE_STATUS`
+
+---
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Authorization | Sim | `Bearer <access_token>` |
+| Content-Type | Sim | `application/json` |
+
+---
+
+### Parâmetros de Caminho
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|:-----------:|-----------|
+| `id` | UUID | Sim | Identificador único do usuário. |
+
+---
+
+### Corpo da Requisição
+
+DTO: `UpdateUserStatusRequest`
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `status` | UserStatus | Sim | Novo status do usuário. Valores permitidos: `ACTIVE`, `INACTIVE` e `BLOCKED`. |
+
+Exemplo:
+
+```json
+{
+  "status": "INACTIVE"
+}
+```
+
+---
+
+### Resposta de Sucesso
+
+DTO: `UserResponse`
+
+```json
+{
+  "id": "efbdf77f-24dd-45b3-a130-3e60ef7b1f6a",
+  "name": "João Silva",
+  "email": "joao.silva@email.com",
+  "roles": [
+    {
+      "id": "3e0d4bb2-6bc9-4f6b-9cf7-8a6fd90d5e11",
+      "name": "ADMIN"
+    }
+  ],
+  "status": "INACTIVE",
+  "createdAt": "2026-08-15T14:30:00Z",
+  "updatedAt": "2026-08-20T16:45:00Z"
+}
+```
+
+---
+
+### Regras de Negócio
+
+- O usuário deve existir.
+- Apenas usuários com a permissão `USER_UPDATE_STATUS` podem alterar o status de outros usuários.
+- A operação altera apenas o status do usuário, preservando os demais dados cadastrais.
+- Usuários com status `INACTIVE` ou `BLOCKED` não podem autenticar-se na plataforma.
+
+---
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Status do usuário atualizado com sucesso. |
+| `400 Bad Request` | Requisição inválida. |
+| `401 Unauthorized` | Usuário não autenticado. |
+| `403 Forbidden` | Usuário sem permissão para alterar o status de usuários. |
+| `404 Not Found` | Usuário não encontrado. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+### Observação
+
+Este endpoint é responsável exclusivamente pela alteração do status do usuário. Alterações cadastrais devem ser realizadas por meio do endpoint `PUT /api/v1/users/{id}`.
+
+⬆️ [Voltar ao índice](#indice)
