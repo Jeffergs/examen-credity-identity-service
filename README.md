@@ -4,33 +4,46 @@
    - [🎯 Objetivo](#objetivo)
    - [📌 Responsabilidades](#responsabilidades)
    - [🚫 Fora do Escopo](#fora-do-escopo)
-
 2. [🗄️ Modelo de Dados](#modelo-de-dados)
    - [📖 Visão Geral](#modelo-visao-geral)
    - [📊 Modelo Conceitual](#modelo-conceitual)
    - [🏛️ Entidades](#entidades)
-     - [👤 User](#user)
-     - [🛡️ Role](#role)
-     - [🔄 Refresh Token](#refresh-token)
    - [🔗 Relacionamentos](#relacionamentos)
    - [📐 Regras de Modelagem](#regras-de-modelagem)
-
-3. [🔐 Autenticação](#autenticacao)
+3. [🛡️ Papéis (Roles)](#papeis)
+   - [📖 Tipos de Papéis](#tipos-de-papeis)
+4. [🎫 JWT (JSON Web Token)](#jwt)
+   - [🧩 Estrutura do Token](#estrutura-do-token)
+   - [📄 Cabeçalho (Header)](#cabecalho-header)
+   - [📦 Payload](#payload)
+   - [✍️ Assinatura](#assinatura)
+   - [📐 Regras de Negócio](#regras-de-negocio-jwt)
+   - [🚀 Utilização](#utilizacao)
+   - [🔄 Fluxo de Autenticação](#fluxo-de-autenticacao)
+5. [📦 Modelos de Requisição e Resposta (DTOs)](#dtos)
+   - [📤 Modelos de Requisição](#request-dtos)
+      - [CreateUserRequest](#create-user-request)
+      - [UpdateUserRequest](#update-user-request)
+      - [UpdateUserStatusRequest](#update-user-status-request)
+      - [LoginRequest](#login-request)
+      - [RefreshTokenRequest](#refresh-token-request)
+   - [📥 Modelos de Resposta](#response-dtos)
+      - [LoginResponse](#login-response)
+      - [RefreshTokenResponse](#refresh-token-response)
+      - [UserResponse](#user-response)
+      - [Page<UserResponse>](#page-user-response)
+      - [MessageResponse](#message-response)
+6. [🔐 Autenticação](#autenticacao)
    - [🔑 Login](#login)
    - [♻️ Refresh Token](#refresh-token-endpoint)
    - [🚪 Logout](#logout)
-
-4. [👥 Usuários](#usuarios)
+7. [👥 Usuários](#usuarios)
    - [➕ Criar Usuário](#criar-usuario)
    - [📋 Listar Usuários](#listar-usuarios)
    - [🔍 Buscar Usuário](#buscar-usuario)
    - [✏️ Atualizar Usuário](#atualizar-usuario)
    - [🔄 Alterar Status do Usuário](#alterar-status-do-usuario)
 
-5. [🛡️ Papéis (Roles)](#papeis)
-   - [📖 Tipos de Papéis](#tipos-de-papeis)
-
-6. [🎫 JWT (JSON Web Token)](#jwt)
 
 ---
 
@@ -42,7 +55,7 @@
 
 ## 🎯 Objetivo
 
-A Identity Service é responsável pelo gerenciamento da identidade dos usuários da plataforma.
+A Identity Service é o microsserviço responsável pelo gerenciamento da identidade dos usuários da plataforma.
 
 Suas principais responsabilidades incluem autenticação, emissão e renovação de tokens JWT, gerenciamento de usuários e controle de acesso baseado em papéis (RBAC), fornecendo os mecanismos de segurança utilizados pelos demais microsserviços.
 
@@ -58,8 +71,8 @@ A Identity Service é responsável por:
 - Emitir Access Tokens (JWT).
 - Emitir e renovar Refresh Tokens.
 - Revogar Refresh Tokens durante o logout.
-- Gerenciar usuários da plataforma.
-- Gerenciar os papéis atribuídos aos usuários.
+- Gerenciar usuários.
+- Gerenciar papéis de acesso (Roles).
 - Fornecer informações de identidade para os demais microsserviços.
 
 ---
@@ -68,7 +81,7 @@ A Identity Service é responsável por:
 
 ## 🚫 Fora do Escopo
 
-A Identity Service não é responsável por regras de negócio dos demais microsserviços, incluindo:
+A Identity Service não implementa regras de negócio dos demais microsserviços, incluindo:
 
 - Cadastro de clientes.
 - Análise de crédito.
@@ -76,9 +89,6 @@ A Identity Service não é responsável por regras de negócio dos demais micros
 - Notificações.
 - Gerenciamento de dados financeiros.
 - Processamento de solicitações de crédito.
-
-
-
 
 
 
@@ -93,19 +103,19 @@ A Identity Service não é responsável por regras de negócio dos demais micros
 
 O modelo de dados da Identity Service foi projetado para atender exclusivamente às necessidades de autenticação, autorização e gerenciamento de usuários da plataforma.
 
-O microsserviço é composto por apenas três entidades:
+O modelo de dados é composto por três entidades:
 
 - **User**: representa um usuário autenticável.
 - **Role**: representa o papel atribuído ao usuário.
-- **RefreshToken**: controla a renovação segura dos Access Tokens.
-
-Informações de negócio pertencentes aos demais microsserviços não são armazenadas na Identity Service.
+- **RefreshToken**: representa o token utilizado para renovação de Access Tokens.
 
 ---
 
 <a id="modelo-conceitual"></a>
 
 ## 📊 Modelo Conceitual
+
+O diagrama abaixo representa as entidades da Identity Service e seus relacionamentos.
 
 ```mermaid
 erDiagram
@@ -144,15 +154,13 @@ erDiagram
 
 ## 🏛️ Entidades
 
-<a id="user"></a>
-
 ### 👤 User
 
 Representa um usuário autenticável da plataforma.
 
-Cada usuário possui exatamente um papel e pode possuir múltiplos Refresh Tokens ativos ao longo do tempo.
+Cada usuário possui exatamente um papel e pode possuir múltiplos Refresh Tokens ao longo do tempo.
 
-**Responsabilidades**
+#### Responsabilidades
 
 - Identificar o usuário.
 - Armazenar as credenciais de autenticação.
@@ -161,40 +169,41 @@ Cada usuário possui exatamente um papel e pode possuir múltiplos Refresh Token
 
 ---
 
-<a id="role"></a>
-
 ### 🛡️ Role
 
 Representa os papéis utilizados para autorização na plataforma.
 
 Os papéis são fixos e cadastrados automaticamente durante a inicialização da aplicação.
 
-Papéis disponíveis:
+#### Papéis Disponíveis
 
-- ADMIN
-- ANALYST
-- SYSTEM
+| Papel | Descrição |
+|--------|-----------|
+| `ADMIN` | Administração da plataforma. |
+| `ANALYST` | Operações de análise de crédito. |
+| `SYSTEM` | Comunicação entre microsserviços. |
 
 ---
-
-<a id="refresh-token"></a>
 
 ### 🔄 Refresh Token
 
-Representa um token utilizado para obtenção de novos Access Tokens.
+Representa um token persistido utilizado para permitir a emissão de novos Access Tokens sem que o usuário precise realizar uma nova autenticação.
 
-A Identity Service utiliza **Refresh Token Rotation**, invalidando o token anterior sempre que um novo Refresh Token é emitido.
+#### Responsabilidades
+
+- Identificar um Refresh Token.
+- Controlar sua validade.
+- Controlar sua revogação.
+- Associar o token a um usuário.
 
 ---
-
-<a id="relacionamentos"></a>
 
 ## 🔗 Relacionamentos
 
 | Origem | Relacionamento | Destino |
 |---------|----------------|---------|
-| User | N : 1 | Role |
-| User | 1 : N | RefreshToken |
+| User | N:1 | Role |
+| User | 1:N | RefreshToken |
 
 ---
 
@@ -203,15 +212,378 @@ A Identity Service utiliza **Refresh Token Rotation**, invalidando o token anter
 ## 📐 Regras de Modelagem
 
 - Cada usuário possui exatamente um papel.
-- Um papel pode ser atribuído a vários usuários.
 - Um usuário pode possuir múltiplos Refresh Tokens.
 - Cada Refresh Token pertence a um único usuário.
-- Os papéis são fixos e não podem ser alterados pela API.
+- Um papel pode ser atribuído a vários usuários.
+- Os papéis são fixos e cadastrados automaticamente pelo Flyway.
 - Não existem entidades de Permission ou RolePermission.
 - A autorização é baseada exclusivamente no papel presente no JWT.
 
 
+  
 
+<a id="papeis"></a>
+
+# 🛡️ Papéis (Roles)
+
+A autorização da plataforma é baseada em **RBAC (Role-Based Access Control)**.
+
+Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicialização da aplicação e não podem ser gerenciados por meio da API.
+
+---
+
+<a id="tipos-de-papeis"></a>
+
+## 📖 Tipos de Papéis
+
+| Papel | Descrição |
+|--------|-----------|
+| `ADMIN` | Gerencia usuários e possui acesso administrativo à plataforma. |
+| `ANALYST` | Realiza as operações relacionadas à análise de crédito. |
+| `SYSTEM` | Utilizado para comunicação entre microsserviços e processos internos da plataforma. |
+
+## 📐 Regras de Negócio
+
+- Os papéis são cadastrados automaticamente pelo Flyway.
+- Não existe endpoint para gerenciamento de papéis.
+- Cada usuário possui exatamente um papel.
+- A autorização é baseada exclusivamente no papel presente no JWT.
+
+---
+
+
+
+
+<a id="jwt"></a>
+
+# 🎫 JWT (JSON Web Token)
+
+O Access Token é um **JSON Web Token (JWT)** emitido pela Identity Service após uma autenticação bem-sucedida.
+
+O token é utilizado pelos microsserviços para autenticação e autorização das requisições protegidas.
+
+---
+
+## 📦 Claims
+
+O JWT contém as seguintes claims:
+
+| Claim | Descrição |
+|--------|-----------|
+| `sub` | Identificador do usuário. |
+| `email` | E-mail do usuário. |
+| `role` | Papel atribuído ao usuário. |
+| `iat` | Data de emissão do token. |
+| `exp` | Data de expiração do token. |
+
+Exemplo:
+
+```json
+{
+  "sub": "<user_uuid>",
+  "email": "<email>",
+  "role": "ANALYST",
+  "iat": "<issued_at>",
+  "exp": "<expires_at>"
+}
+```
+
+---
+
+## 📐 Regras de Negócio
+
+- O JWT é emitido apenas após uma autenticação bem-sucedida.
+- O Access Token possui tempo de expiração limitado.
+- O Access Token não é persistido no banco de dados.
+- O papel (`role`) presente no token é utilizado pelos microsserviços para autorização.
+- O Access Token permanece válido até sua expiração natural.
+
+---
+
+## 🚀 Utilização
+
+Os endpoints protegidos devem receber o Access Token no cabeçalho HTTP:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+
+
+
+
+
+
+
+
+<a id="dtos"></a>
+
+# 📦 Modelos de Requisição e Resposta (DTOs)
+
+Esta seção descreve os modelos de requisição e resposta utilizados pelos endpoints da API.
+
+---
+
+## 📤 Modelos de Requisição (Request DTOs)
+
+<a id="create-user-request"></a>
+
+### CreateUserRequest
+
+Utilizado para criar um novo usuário.
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `name` | String | Sim | Nome completo do usuário. |
+| `email` | String | Sim | E-mail do usuário. |
+| `password` | String | Sim | Senha do usuário. |
+| `role` | String | Sim | Papel atribuído ao usuário. |
+
+#### Exemplo
+
+```json
+{
+  "name": "<full_name>",
+  "email": "<email>",
+  "password": "<password>",
+  "role": "ANALYST"
+}
+```
+
+
+<a id="update-user-request"></a>
+
+### UpdateUserRequest
+
+Utilizado para atualizar os dados cadastrais de um usuário.
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `name` | String | Sim | Nome completo do usuário. |
+| `email` | String | Sim | E-mail do usuário. |
+| `role` | String | Sim | Papel atribuído ao usuário. |
+
+#### Exemplo
+
+```json
+{
+  "name": "<full_name>",
+  "email": "<email>",
+  "role": "ADMIN"
+}
+```
+---
+
+<a id="update-user-status-request"></a>
+
+### UpdateUserStatusRequest
+
+Utilizado para alterar o status de um usuário.
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `status` | Enum | Sim | Novo status do usuário. |
+
+#### Valores permitidos
+
+- `ACTIVE`
+- `INACTIVE`
+- `BLOCKED`
+
+#### Exemplo
+
+```json
+{
+  "status": "BLOCKED"
+}
+```
+
+---
+
+<a id="login-request"></a>
+
+### LoginRequest
+
+Utilizado para autenticar um usuário.
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `email` | String | Sim | E-mail do usuário. |
+| `password` | String | Sim | Senha do usuário. |
+
+#### Exemplo
+
+```json
+{
+  "email": "<email>",
+  "password": "<password>"
+}
+```
+
+---
+
+<a id="refresh-token-request"></a>
+
+### RefreshTokenRequest
+
+Utilizado pelos endpoints de renovação de token e logout.
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `refreshToken` | String | Sim | Refresh Token válido. |
+
+#### Exemplo
+
+```json
+{
+  "refreshToken": "<refresh_token>"
+}
+```
+
+---
+
+## 📥 Modelos de Resposta (Response DTOs)
+
+<a id="login-response"></a>
+
+### LoginResponse
+
+Retornado após autenticação bem-sucedida.
+
+| Campo | Tipo | Descrição |
+|--------|------|-----------|
+| `accessToken` | String | JWT utilizado nas requisições autenticadas. |
+| `refreshToken` | String | Token utilizado para renovação da sessão. |
+| `tokenType` | String | Tipo do token (`Bearer`). |
+| `expiresIn` | Integer | Tempo de expiração do Access Token em segundos. |
+
+#### Exemplo
+
+```json
+{
+  "accessToken": "<access_token>",
+  "refreshToken": "<refresh_token>",
+  "tokenType": "Bearer",
+  "expiresIn": 900
+}
+```
+
+---
+
+<a id="refresh-token-response"></a>
+
+### RefreshTokenResponse
+
+Retornado após a renovação de um Access Token.
+
+| Campo | Tipo | Descrição |
+|--------|------|-----------|
+| `accessToken` | String | Novo JWT. |
+| `refreshToken` | String | Novo Refresh Token. |
+| `tokenType` | String | Tipo do token (`Bearer`). |
+| `expiresIn` | Integer | Tempo de expiração do Access Token em segundos. |
+
+#### Exemplo
+
+```json
+{
+  "accessToken": "<new_access_token>",
+  "refreshToken": "<new_refresh_token>",
+  "tokenType": "Bearer",
+  "expiresIn": 900
+}
+```
+
+---
+
+<a id="user-response"></a>
+
+### UserResponse
+
+Representa os dados de um usuário retornados pela API.
+
+| Campo | Tipo | Descrição |
+|--------|------|-----------|
+| `id` | UUID | Identificador do usuário. |
+| `name` | String | Nome completo. |
+| `email` | String | E-mail. |
+| `role` | String | Papel atribuído ao usuário. |
+| `status` | Enum | Status do usuário. |
+
+#### Exemplo
+
+```json
+{
+  "id": "<user_uuid>",
+  "name": "<full_name>",
+  "email": "<email>",
+  "role": "ANALYST",
+  "status": "ACTIVE"
+}
+```
+
+---
+
+<a id="page-user-response"></a>
+
+### Page<UserResponse>
+
+Representa uma resposta paginada utilizando o padrão do Spring Data.
+
+| Campo | Tipo | Descrição |
+|--------|------|-----------|
+| `content` | List<UserResponse> | Lista de usuários. |
+| `page` | Integer | Página atual. |
+| `size` | Integer | Quantidade de registros por página. |
+| `totalElements` | Long | Total de registros encontrados. |
+| `totalPages` | Integer | Total de páginas disponíveis. |
+
+#### Exemplo
+
+```json
+{
+  "content": [
+    {
+      "id": "<user_uuid>",
+      "name": "<full_name>",
+      "email": "<email>",
+      "role": "ANALYST",
+      "status": "ACTIVE"
+    }
+  ],
+  "page": 0,
+  "size": 10,
+  "totalElements": 100,
+  "totalPages": 10
+}
+```
+
+---
+
+<a id="message-response"></a>
+
+### MessageResponse
+
+Representa uma resposta simples contendo apenas uma mensagem descritiva da operação executada.
+
+#### Estrutura
+
+| Campo | Tipo | Descrição |
+|--------|------|-----------|
+| `message` | String | Mensagem retornada pela API. |
+
+#### Exemplo
+
+```json
+{
+  "message": "<message>"
+}
+```
+
+#### Utilizado por
+
+- `POST /api/v1/auth/logout`
+- Endpoints administrativos que retornam apenas a confirmação da operação.
 
 
 
@@ -222,7 +594,7 @@ A Identity Service utiliza **Refresh Token Rotation**, invalidando o token anter
 
 # 🔐 Autenticação
 
-Os endpoints desta seção são responsáveis pela autenticação dos usuários e pelo gerenciamento do ciclo de vida dos tokens utilizados pela plataforma.
+Esta seção documenta os endpoints responsáveis pela autenticação dos usuários, emissão de tokens, renovação de sessão e encerramento da autenticação.
 
 ---
 
@@ -232,7 +604,7 @@ Os endpoints desta seção são responsáveis pela autenticação dos usuários 
 
 ### Objetivo
 
-Autenticar um usuário e emitir um Access Token (JWT) e um Refresh Token.
+Autenticar um usuário e emitir os tokens necessários para acesso à plataforma.
 
 ### Endpoint
 
@@ -248,23 +620,18 @@ Não requerida.
 
 | Nome | Obrigatório | Valor |
 |------|:-----------:|-------|
-| Content-Type | Sim | `application/json` |
+| `Content-Type` | Sim | `application/json` |
 
 ### Corpo da Requisição
 
 DTO: `LoginRequest`
 
-| Campo | Tipo | Obrigatório | Descrição |
-|--------|------|:-----------:|-----------|
-| `email` | String | Sim | E-mail do usuário. |
-| `password` | String | Sim | Senha do usuário. |
-
 Exemplo:
 
 ```json
 {
-  "email": "analyst@examencrediti.com",
-  "password": "Senha@123"
+  "email": "<email>",
+  "password": "<password>"
 }
 ```
 
@@ -272,21 +639,23 @@ Exemplo:
 
 DTO: `LoginResponse`
 
+Exemplo:
+
 ```json
 {
   "accessToken": "<access_token>",
   "refreshToken": "<refresh_token>",
   "tokenType": "Bearer",
-  "expiresIn": 900
+  "expiresIn": "<expires_in>"
 }
 ```
 
 ### Regras de Negócio
 
-- O e-mail deve estar cadastrado.
+- O usuário deve estar cadastrado.
 - O usuário deve possuir status `ACTIVE`.
-- A senha deve corresponder ao hash armazenado.
-- Um Access Token e um Refresh Token são emitidos após a autenticação.
+- A senha informada deve corresponder ao hash armazenado.
+- Após uma autenticação bem-sucedida, são emitidos um Access Token e um Refresh Token.
 
 ### Códigos HTTP
 
@@ -298,6 +667,7 @@ DTO: `LoginResponse`
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
+
 
 <a id="refresh-token-endpoint"></a>
 
@@ -442,6 +812,43 @@ DTO: `MessageResponse`
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 
+
+## 🔄 Fluxo de Autenticação
+
+```text
+
+
+            ┌───────────────┐
+            │     Login     │
+            └───────┬───────┘
+                    │
+                    ▼
+          Identity Service
+                    │
+        ┌───────────┴───────────┐
+        ▼                       ▼
+ Access Token (JWT)      Refresh Token
+        │                       │
+        └───────────┬───────────┘
+                    ▼
+     Cliente realiza requisições
+                    │
+                    ▼
+      Access Token expirou?
+             │
+      ┌──────┴──────┐
+      ▼             ▼
+    Não            Sim
+      │             │
+      ▼             ▼
+ Continua      POST /auth/refresh
+ utilizando           │
+  o Access            ▼
+    Token     Novo Access Token
+              Novo Refresh Token
+
+
+```
 
 
 <a id="usuarios"></a>
@@ -745,131 +1152,5 @@ DTO: `UserResponse`
 
 
 
-<a id="papeis"></a>
-
-# 🛡️ Papéis (Roles)
-
-A autorização da plataforma é baseada em **RBAC (Role-Based Access Control)**.
-
-Os papéis são fixos, cadastrados automaticamente durante a inicialização da aplicação e não podem ser criados, alterados ou removidos por meio da API.
-
----
-
-<a id="tipos-de-papeis"></a>
-
-## 📖 Tipos de Papéis
-
-| Papel | Descrição |
-|--------|-----------|
-| `ADMIN` | Gerencia usuários e possui acesso administrativo à plataforma. |
-| `ANALYST` | Realiza as operações relacionadas à análise de crédito. |
-| `SYSTEM` | Utilizado para comunicação entre microsserviços e processos internos da plataforma. |
-
-### Regras de Negócio
-
-- Cada usuário possui exatamente um papel.
-- Um papel pode ser atribuído a vários usuários.
-- Os papéis são cadastrados automaticamente pelo Flyway.
-- Não existe endpoint para gerenciamento de papéis.
-- A autorização é baseada exclusivamente no papel presente no JWT.
-
----
-
-<a id="jwt"></a>
-
-# 🎫 JWT (JSON Web Token)
-
-O Access Token é um **JSON Web Token (JWT)** utilizado para autenticação e autorização entre os microsserviços da plataforma.
-
-Após a autenticação, a Identity Service emite um JWT que acompanha todas as requisições protegidas.
-
-## Estrutura do Token
-
-O JWT é composto por três partes:
-
-```text
-Header.Payload.Signature
-```
-
-## Cabeçalho (Header)
-
-```json
-{
-  "alg": "HS256",
-  "typ": "JWT"
-}
-```
-
-## Payload
-
-| Claim | Descrição |
-|--------|-----------|
-| `sub` | Identificador do usuário. |
-| `email` | E-mail do usuário. |
-| `role` | Papel do usuário. |
-| `iat` | Data de emissão. |
-| `exp` | Data de expiração. |
-
-Exemplo:
-
-```json
-{
-  "sub": "2a6fd44b-6f9c-46b6-a3d5-2dc0a3d5b3b5",
-  "email": "analyst@examencrediti.com",
-  "role": "ANALYST",
-  "iat": 1722100000,
-  "exp": 1722100900
-}
-```
-
-## Assinatura
-
-A assinatura garante a integridade do token e impede alterações em seu conteúdo.
-
-## Regras de Negócio
-
-- O JWT é emitido apenas após autenticação bem-sucedida.
-- O JWT possui tempo de expiração limitado.
-- O JWT não é armazenado no banco de dados.
-- O papel (`role`) é utilizado pelos microsserviços para autorização.
-- O Access Token permanece válido até sua expiração natural.
-- O Logout revoga apenas o Refresh Token.
-
-## Utilização
-
-Os endpoints protegidos devem receber o JWT no cabeçalho HTTP:
-
-```http
-Authorization: Bearer <access_token>
-```
 
 
-
-
-## Fluxo de Autenticação
-
-```text
-┌──────────┐
-│  Login   │
-└────┬─────┘
-     │
-     ▼
-Identity Service
-     │
-     ├──► Access Token (JWT)
-     └──► Refresh Token
-                │
-                ▼
-     Cliente realiza requisições
-                │
-     Access Token expirou?
-                │
-        ┌───────┴────────┐
-        │                │
-      Não              Sim
-        │                │
-        ▼                ▼
- Continua usando   POST /auth/refresh
-                        │
-                        ▼
-         Novo Access Token + Novo Refresh Token
