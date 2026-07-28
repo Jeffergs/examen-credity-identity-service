@@ -109,14 +109,6 @@ Em caso de sucesso, o usuário é autenticado e recebe um token JWT válido para
 | Usuário inativo | Autenticação negada. |
 | Credenciais inválidas | Autenticação negada. |
 
-
-
-
-
-
-
-
-
 ## Renovar Access Token
 
 ### Objetivo
@@ -206,3 +198,93 @@ DTO: `RefreshTokenResponse`
 O Identity Service adota a estratégia de **Refresh Token Rotation**. A cada renovação, um novo Refresh Token é emitido e o token utilizado na requisição é invalidado imediatamente.
 
 Os detalhes sobre expiração, revogação, rotação e blacklist de tokens estão descritos em **09-arquitetura-de-seguranca.md**.
+
+
+
+
+## Logout
+
+### Objetivo
+
+Encerrar a sessão do usuário autenticado, revogando o Refresh Token e impedindo a emissão de novos Access Tokens.
+
+---
+
+### Endpoint
+
+```http
+POST /api/v1/auth/logout
+```
+
+---
+
+### Autenticação
+
+Obrigatória (`Bearer Token`).
+
+---
+
+### Cabeçalhos
+
+| Nome | Obrigatório | Valor |
+|------|:-----------:|-------|
+| Authorization | Sim | `Bearer <access_token>` |
+| Content-Type | Sim | `application/json` |
+
+---
+
+### Corpo da Requisição
+
+DTO: `RefreshTokenRequest`
+
+| Campo | Tipo | Obrigatório | Descrição |
+|--------|------|:-----------:|-----------|
+| `refreshToken` | String | Sim | Refresh Token que será revogado. |
+
+Exemplo:
+
+```json
+{
+  "refreshToken": "<refresh_token>"
+}
+```
+
+---
+
+### Resposta de Sucesso
+
+DTO: `MessageResponse`
+
+```json
+{
+  "message": "Logout realizado com sucesso."
+}
+```
+
+---
+
+### Regras de Negócio
+
+- O Access Token deve ser válido.
+- O Refresh Token deve pertencer ao usuário autenticado.
+- O Refresh Token é revogado e não pode mais ser reutilizado.
+- Após o logout, o usuário deverá realizar uma nova autenticação para obter novos tokens.
+
+---
+
+### Códigos HTTP
+
+| Código | Descrição |
+|---------|-----------|
+| `200 OK` | Logout realizado com sucesso. |
+| `400 Bad Request` | Requisição inválida. |
+| `401 Unauthorized` | Access Token inválido ou expirado. |
+| `500 Internal Server Error` | Erro interno do servidor. |
+
+---
+
+### Observação
+
+O logout revoga apenas o Refresh Token. O Access Token permanece válido até sua expiração natural.
+
+As políticas de expiração, revogação e gerenciamento de tokens são descritas em **09-arquitetura-de-seguranca.md**.
