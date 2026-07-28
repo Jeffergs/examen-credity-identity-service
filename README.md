@@ -25,7 +25,7 @@
    - 4.2 [📄 Cabeçalho (Header)](#cabecalho-header)
    - 4.3 [📦 Payload](#payload)
    - 4.4 [✍️ Assinatura](#assinatura)
-   - 4.5 [📐 Regras de Negócio](#regras-de-negocio-jwt)
+   - 4.5 [📐 Regras de Negócio](#regras-jwt)
    - 4.6 [🚀 Utilização](#utilizacao)
 5. [📦 Modelos de Requisição e Resposta (DTOs)](#dtos)
    - 5.1 [📤 Modelos de Requisição](#request-dtos)
@@ -259,7 +259,6 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 ---
 
 <a id="tipos-de-papeis"></a>
-
 ## 📖 Tipos de Papéis
 
 | Papel | Descrição |
@@ -270,6 +269,8 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 
 ⬆️ [Voltar ao índice](#indice)
 
+
+<a id="regras-de-papeis"></a>
 ## 📐 Regras de Negócio
 
 - Os papéis são cadastrados automaticamente pelo Flyway.
@@ -282,7 +283,6 @@ Os papéis são fixos, cadastrados automaticamente pelo Flyway durante a inicial
 ---
 
 <a id="jwt"></a>
-
 # 🎫 JWT (JSON Web Token)
 
 O Access Token é um **JSON Web Token (JWT)** emitido pela Identity Service após uma autenticação bem-sucedida.
@@ -293,6 +293,7 @@ O token é utilizado pelos microsserviços para autenticação e autorização d
 
 ---
 
+<a id="clains"></a>
 ## 📦 Claims
 
 O JWT contém as seguintes claims:
@@ -321,6 +322,7 @@ Exemplo:
 
 ---
 
+<a id="regras-jwt"></a>
 ## 📐 Regras de Negócio
 
 - O JWT é emitido apenas após uma autenticação bem-sucedida.
@@ -333,6 +335,7 @@ Exemplo:
 
 ---
 
+<a id="utilizacao-jwt"></a>
 ## 🚀 Utilização
 
 Os endpoints protegidos devem receber o Access Token no cabeçalho HTTP:
@@ -346,7 +349,6 @@ Authorization: Bearer <access_token>
 
 
 <a id="dtos"></a>
-
 # 📦 Modelos de Requisição e Resposta (DTOs)
 
 Esta seção descreve os modelos de requisição e resposta utilizados pelos endpoints da API.
@@ -358,7 +360,6 @@ Esta seção descreve os modelos de requisição e resposta utilizados pelos end
 ## 📤 Modelos de Requisição (Request DTOs)
 
 <a id="create-user-request"></a>
-
 ### CreateUserRequest
 
 Utilizado para criar um novo usuário.
@@ -384,7 +385,6 @@ Utilizado para criar um novo usuário.
 ⬆️ [Voltar ao índice](#indice)
 
 <a id="update-user-request"></a>
-
 ### UpdateUserRequest
 
 Utilizado para atualizar os dados cadastrais de um usuário.
@@ -479,6 +479,7 @@ Utilizado pelos endpoints de renovação de token e logout.
 
 ⬆️ [Voltar ao índice](#indice)
 
+<a id=""></a>
 ## 📥 Modelos de Resposta (Response DTOs)
 
 <a id="login-response"></a>
@@ -844,6 +845,7 @@ Exemplo:
 
 ⬆️ [Voltar ao índice](#indice)
 
+<a id="fluxo-de-autenticacao"></a>
 ## 🔄 Fluxo de Autenticação
 
 ```text
