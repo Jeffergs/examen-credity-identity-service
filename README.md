@@ -871,3 +871,82 @@ DTO: `UserResponse`
 Este endpoint é responsável exclusivamente pela alteração do status do usuário. Alterações cadastrais devem ser realizadas por meio do endpoint `PUT /api/v1/users/{id}`.
 
 ⬆️ [Voltar ao índice](#indice)
+
+
+
+# Papéis (Roles)
+
+## Visão Geral
+
+O Examen Crediti utiliza **RBAC (Role-Based Access Control)** para controle de acesso.
+
+Os papéis são **fixos**, cadastrados automaticamente durante a inicialização da aplicação por meio de migrations. Não existe funcionalidade para criação, edição ou exclusão de papéis via API.
+
+Cada usuário possui **exatamente um papel**, que define seu perfil de acesso na plataforma.
+
+A autorização aos recursos é realizada pelos microsserviços com base no papel presente no JWT emitido pela Identity Service.
+
+---
+
+## Papéis Disponíveis
+
+### ADMIN
+
+**Descrição**
+
+Responsável pela administração da plataforma.
+
+Possui acesso às funcionalidades administrativas da Identity Service e às operações administrativas dos demais microsserviços.
+
+**Principais responsabilidades**
+
+- Gerenciar usuários.
+- Atribuir papéis aos usuários.
+- Alterar status de usuários.
+- Acessar funcionalidades administrativas da plataforma.
+
+---
+
+### ANALYST
+
+**Descrição**
+
+Responsável pelas operações de negócio relacionadas ao processo de análise de crédito.
+
+Este é o perfil utilizado pelos usuários responsáveis pela operação diária do sistema.
+
+**Principais responsabilidades**
+
+- Consultar clientes.
+- Cadastrar clientes.
+- Atualizar dados cadastrais.
+- Solicitar análises de crédito.
+- Aprovar ou rejeitar solicitações de crédito.
+- Consultar histórico das análises.
+
+---
+
+### SYSTEM
+
+**Descrição**
+
+Conta técnica utilizada para autenticação e comunicação segura entre microsserviços.
+
+Não representa um usuário humano e não pode ser utilizada para acesso à aplicação.
+
+**Exemplos de utilização**
+
+- Customer Service → Credit Analysis Service
+- Credit Analysis Service → Notification Service
+- Credit Analysis Service → Audit Service
+
+---
+
+## Considerações
+
+- Os papéis são fixos e imutáveis em tempo de execução.
+- Cada usuário possui exatamente um papel.
+- Não existe CRUD de papéis.
+- A autorização é baseada exclusivamente no papel presente no JWT.
+- Cada microsserviço define quais papéis possuem acesso aos seus respectivos recursos.
+
