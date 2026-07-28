@@ -1,3 +1,7 @@
+# Identiti Service
+
+<a id="indice"></a>
+
 # 📑 Índice
 
 1. [📝 Visão Geral](#visao-geral)
@@ -19,7 +23,6 @@
    - [✍️ Assinatura](#assinatura)
    - [📐 Regras de Negócio](#regras-de-negocio-jwt)
    - [🚀 Utilização](#utilizacao)
-   - [🔄 Fluxo de Autenticação](#fluxo-de-autenticacao)
 5. [📦 Modelos de Requisição e Resposta (DTOs)](#dtos)
    - [📤 Modelos de Requisição](#request-dtos)
       - [CreateUserRequest](#create-user-request)
@@ -37,7 +40,8 @@
    - [🔑 Login](#login)
    - [♻️ Refresh Token](#refresh-token-endpoint)
    - [🚪 Logout](#logout)
-7. [👥 Usuários](#usuarios)
+7. [🔄 Fluxo de Autenticação](#fluxo-de-autenticacao)
+8. [👥 Usuários](#usuarios)
    - [➕ Criar Usuário](#criar-usuario)
    - [📋 Listar Usuários](#listar-usuarios)
    - [🔍 Buscar Usuário](#buscar-usuario)
@@ -90,7 +94,7 @@ A Identity Service não implementa regras de negócio dos demais microsserviços
 - Gerenciamento de dados financeiros.
 - Processamento de solicitações de crédito.
 
-
+⬆️ [Voltar ao índice](#indice)
 
 
 <a id="modelo-de-dados"></a>
@@ -1170,93 +1174,6 @@ Exemplo:
 | `500 Internal Server Error` | Erro interno do servidor. |
 
 ---
-
-<a id="alterar-status-do-usuario"></a>
-
-## 🔄 Alterar Status do Usuário
-
-### Objetivo
-
-Alterar o status de um usuário.
-
-### Endpoint
-
-```http
-PATCH /api/v1/users/{id}/status
-```
-
-### Autenticação
-
-Obrigatória (`Bearer Token`).
-
-### Permissão
-
-`ADMIN`
-
-### Cabeçalhos
-
-| Nome | Obrigatório | Valor |
-|------|:-----------:|-------|
-| `Authorization` | Sim | `Bearer <access_token>` |
-| `Content-Type` | Sim | `application/json` |
-
-### Parâmetros de Caminho
-
-| Nome | Tipo | Obrigatório | Descrição |
-|------|------|:-----------:|-----------|
-| `id` | UUID | Sim | Identificador do usuário. |
-
-### Corpo da Requisição
-
-DTO: `UpdateUserStatusRequest`
-
-Exemplo:
-
-```json
-{
-  "status": "<status>"
-}
-```
-
-### Resposta de Sucesso
-
-DTO: `UserResponse`
-
-Exemplo:
-
-```json
-{
-  "id": "<user_uuid>",
-  "name": "<name>",
-  "email": "<email>",
-  "status": "<status>",
-  "role": "<role>",
-  "createdAt": "<created_at>",
-  "updatedAt": "<updated_at>"
-}
-```
-
-### Regras de Negócio
-
-- Apenas usuários com papel `ADMIN` podem alterar o status de usuários.
-- Os status permitidos são:
-  - `ACTIVE`
-  - `INACTIVE`
-  - `BLOCKED`
-- Apenas o status pode ser alterado por este endpoint.
-
-### Códigos HTTP
-
-| Código | Descrição |
-|---------|-----------|
-| `200 OK` | Status alterado com sucesso. |
-| `400 Bad Request` | Status inválido. |
-| `403 Forbidden` | Usuário sem permissão. |
-| `404 Not Found` | Usuário não encontrado. |
-| `500 Internal Server Error` | Erro interno do servidor. |
-
----
-
 <a id="alterar-status-do-usuario"></a>
 
 ## 🔄 Alterar Status do Usuário
