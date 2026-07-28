@@ -616,6 +616,8 @@ Representa uma resposta simples contendo apenas uma mensagem descritiva da opera
 
 ⬆️ [Voltar ao índice](#indice)
 
+---
+
 <a id="autenticacao"></a>
 # 🔐 Autenticação
 
