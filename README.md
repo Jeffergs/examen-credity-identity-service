@@ -343,8 +343,6 @@ Authorization: Bearer <access_token>
 
 Esta seção descreve os modelos de requisição e resposta utilizados pelos endpoints da API.
 
-⬆️ [Voltar ao índice](#indice)
-
 ---
 
 ## 📤 Modelos de requisição (Request DTOs)
